@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ishari Admin Next
+
+Admin panel application built with **Next.js 16** using **Clean Architecture** pattern.
+
+## Tech Stack
+
+- **Framework**: Next.js 16.1.1 (App Router)
+- **Language**: TypeScript 5
+- **Styling**: TailwindCSS 4
+- **Runtime**: Bun / Node.js
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router pages & API routes
+│   ├── api/proxy/          # API proxy to backend
+│   └── (auth)/             # Auth-related pages
+├── core/                   # Domain layer
+│   ├── errors/             # Custom error classes
+│   └── types/              # Shared types (Result pattern)
+├── infrastructure/         # Infrastructure layer
+│   ├── http/               # HTTP client abstraction
+│   ├── repositories/       # Data repositories
+│   └── services/           # External services
+├── application/            # Use cases / application logic
+├── presentation/           # UI components & hooks
+├── di/                     # Dependency injection
+└── shared/                 # Shared utilities
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+ or Bun
+- Backend API server
+
+### Environment Setup
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://your-api-server.com
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Run Development Server
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun dev
+# or
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Architecture
 
-To learn more about Next.js, take a look at the following resources:
+### Clean Architecture Layers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Layer              | Folder            | Purpose                                      |
+| ------------------ | ----------------- | -------------------------------------------- |
+| **Core**           | `core/`           | Domain entities, errors, types               |
+| **Infrastructure** | `infrastructure/` | External services, HTTP client, repositories |
+| **Application**    | `application/`    | Use cases, business logic                    |
+| **Presentation**   | `presentation/`   | React components, hooks                      |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Error Handling
 
-## Deploy on Vercel
+Global error classes available:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```typescript
+import {
+  NetworkError,
+  UnauthorizedError,
+  ValidationError,
+  NotFoundError,
+  ServerError,
+} from "@/core/errors";
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### HTTP Client Usage
+
+```typescript
+import { createHttpClient } from "@/infrastructure/http";
+
+const http = createHttpClient();
+const result = await http.get<User[]>("/api/proxy/users");
+
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.error);
+}
+```
+
+## Scripts
+
+| Command     | Description              |
+| ----------- | ------------------------ |
+| `bun dev`   | Start development server |
+| `bun build` | Build for production     |
+| `bun start` | Start production server  |
+| `bun lint`  | Run ESLint               |
+
+## License
+
+Private - All rights reserved.
