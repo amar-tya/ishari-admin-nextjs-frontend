@@ -1,98 +1,73 @@
 # Ishari Admin Next
 
-Admin panel application built with **Next.js 16** using **Clean Architecture** pattern.
+Admin panel dengan **Next.js 16** dan **Clean Architecture**.
 
 ## Tech Stack
 
-- **Framework**: Next.js 16.1.1 (App Router)
-- **Language**: TypeScript 5
-- **Styling**: TailwindCSS 4
-- **Runtime**: Bun / Node.js
+- Next.js 16.1.1 (App Router)
+- TypeScript 5
+- TailwindCSS 4
+- Bun / Node.js
 
 ## Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router pages & API routes
-│   ├── api/proxy/          # API proxy to backend
-│   └── (auth)/             # Auth-related pages
-├── core/                   # Domain layer
-│   ├── errors/             # Custom error classes
-│   └── types/              # Shared types (Result pattern)
-├── infrastructure/         # Infrastructure layer
-│   ├── http/               # HTTP client abstraction
-│   ├── repositories/       # Data repositories
-│   └── services/           # External services
-├── application/            # Use cases / application logic
-├── presentation/           # UI components & hooks
-├── di/                     # Dependency injection
-└── shared/                 # Shared utilities
+├── app/                      # Next.js pages & routes
+├── application/              # Use cases & ports
+│   ├── ports/
+│   │   ├── repository/       # Repository interfaces
+│   │   └── service/          # Service interfaces
+│   ├── dto/                  # Data transfer objects
+│   └── usecases/             # Business logic
+├── core/                     # Domain layer
+│   ├── entities/             # Domain entities
+│   ├── errors/               # Custom errors
+│   └── types/                # Shared types
+├── infrastructure/           # External implementations
+│   ├── http/                 # HTTP client
+│   ├── repositories/         # Repository implementations
+│   ├── services/             # Service implementations
+│   └── mappers/              # Data mappers
+├── presentation/             # UI layer
+│   ├── components/
+│   │   └── forms/            # Form components
+│   ├── view-models/
+│   │   └── login/            # Per-feature ViewModels
+│   ├── hooks/                # Reusable hooks
+│   └── stores/               # Global state
+├── di/                       # Dependency injection
+└── shared/                   # Shared utilities
+```
+
+## Architecture Flow
+
+```
+Component (LoginPage)
+    ↓
+ViewModel (useLoginViewModel)
+    ↓
+UseCase (LoginUseCase)
+    ↓         ↓
+Repository   Service
+    ↓         ↓
+ API        Cookies
 ```
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18+ or Bun
-- Backend API server
-
-### Environment Setup
-
-Copy `.env.example` to `.env` and configure:
-
-```env
-NEXT_PUBLIC_API_BASE_URL=http://your-api-server.com
-```
-
-### Run Development Server
-
 ```bash
+# Copy environment
+cp .env.example .env
+
+# Install dependencies
+bun install
+
+# Run development
 bun dev
-# or
-npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
-
-## Architecture
-
-### Clean Architecture Layers
-
-| Layer              | Folder            | Purpose                                      |
-| ------------------ | ----------------- | -------------------------------------------- |
-| **Core**           | `core/`           | Domain entities, errors, types               |
-| **Infrastructure** | `infrastructure/` | External services, HTTP client, repositories |
-| **Application**    | `application/`    | Use cases, business logic                    |
-| **Presentation**   | `presentation/`   | React components, hooks                      |
-
-### Error Handling
-
-Global error classes available:
-
-```typescript
-import {
-  NetworkError,
-  UnauthorizedError,
-  ValidationError,
-  NotFoundError,
-  ServerError,
-} from "@/core/errors";
-```
-
-### HTTP Client Usage
-
-```typescript
-import { createHttpClient } from "@/infrastructure/http";
-
-const http = createHttpClient();
-const result = await http.get<User[]>("/api/proxy/users");
-
-if (result.success) {
-  console.log(result.data);
-} else {
-  console.error(result.error);
-}
-```
 
 ## Scripts
 
@@ -102,7 +77,3 @@ if (result.success) {
 | `bun build` | Build for production     |
 | `bun start` | Start production server  |
 | `bun lint`  | Run ESLint               |
-
-## License
-
-Private - All rights reserved.

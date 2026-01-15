@@ -1,7 +1,10 @@
+"use client";
+
+import { useLoginViewModel } from "@/presentation/view-models";
+import { LoginForm } from "@/presentation/components";
+
 export default function LoginPage() {
-  return (
-    <div>
-      <h1>Login</h1>
-    </div>
-  );
+  const viewModel = useLoginViewModel();
+
+  return <LoginForm viewModel={viewModel} />;
 }
