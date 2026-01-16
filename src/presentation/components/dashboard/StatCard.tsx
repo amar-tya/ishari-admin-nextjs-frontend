@@ -42,7 +42,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       <p className={`text-label mb-1 ${labelColor}`}>{label}</p>
 
       {/* Value */}
-      <p className="text-stat">{value.toLocaleString()}</p>
+      <p className="text-stat">{typeof value === 'number' ? value.toLocaleString('en-US') : value}</p>
     </Card>
   );
 };

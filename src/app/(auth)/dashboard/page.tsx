@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/presentation/components/base';
 import {
   UsersIcon,
@@ -18,6 +20,7 @@ import {
   PendingApprovalCard,
   RecentUpdatesTable,
 } from '@/presentation/components/dashboard';
+import { useUser } from '@/presentation/hooks';
 
 // Dummy data - with colors matching the design
 const statsData = [
@@ -95,12 +98,14 @@ const recentUpdatesData = [
 ];
 
 export default function DashboardPage() {
+  const user = useUser();
+
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-heading">Welcome back, Admin 👋</h1>
+          <h1 className="text-heading capitalize">Welcome back, {user?.username} 👋</h1>
           <p className="text-description mt-1">
             Here&apos;s what&apos;s happening with your master data today.
           </p>

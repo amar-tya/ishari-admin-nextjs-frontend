@@ -4,6 +4,7 @@ import React from 'react';
 import { SearchInput, Avatar } from '../base';
 import { BellIcon, ChevronRightIcon } from '../base/icons';
 import { useSidebar } from './SidebarContext';
+import { useUser } from '@/presentation/hooks';
 
 interface TopBarProps {
   title?: string;
@@ -19,6 +20,7 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const { isCollapsed } = useSidebar();
   const marginLeft = isCollapsed ? '80px' : 'clamp(240px, 20vw, 280px)';
+  const user = useUser();
 
   return (
     <header
@@ -78,9 +80,9 @@ export const TopBar: React.FC<TopBarProps> = ({
 
         {/* User Profile */}
         <div className="flex items-center" style={{ gap: 'clamp(0.5rem, 1vw, 0.75rem)' }}>
-          <Avatar initials="AU" size="md" />
+          <Avatar initials={user?.username?.substring(0, 2).toUpperCase() || 'AU'} size="md" />
           <div className="hidden sm:block">
-            <p className="text-body font-medium leading-tight">Admin User</p>
+            <p className="text-body font-medium leading-tight capitalize">{user?.username || 'Admin User'}</p>
             <p className="text-caption">Super Admin</p>
           </div>
         </div>
