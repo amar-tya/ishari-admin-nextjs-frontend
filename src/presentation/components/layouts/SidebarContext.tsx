@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useLayoutEffect } from 'react';
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -11,27 +11,32 @@ interface SidebarContextType {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
 export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Check for mobile screen on mount and auto-collapse
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
+    const checkScreenSize = () => {
+      const isMobile = window.innerWidth < 768;
+      const savedState = localStorage.getItem('sidebar-collapsed');
+      
+      if (isMobile) {
+        setIsCollapsed(true);
+      } else if (savedState) {
+        setIsCollapsed(savedState === 'true');
+      }
+    };
+
+    // Initial check
+    checkScreenSize();
+
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setIsCollapsed(true);
       }
     };
-
-    // Initial check - intentionally simple to avoid flash of content
-    // ignoring sync warning for initial mount check as it determines initial layout
-    if (window.innerWidth < 768) {
-      setIsCollapsed(true); 
-    } else {
-       const savedState = localStorage.getItem('sidebar-collapsed');
-       if (savedState) {
-         setIsCollapsed(savedState === 'true');
-       }
-    }
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
