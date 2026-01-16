@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
 import { LoginUseCase } from "../login.usecase";
 import { IAuthRepository, IAuthService } from "@/application/ports";
 import { AuthResponse, LoginCredentials } from "@/core/entities";
@@ -18,6 +18,8 @@ const createMockAuthService = (): IAuthService => ({
   getRefreshToken: vi.fn(),
   clearTokens: vi.fn(),
   hasValidSession: vi.fn(),
+  getUser: vi.fn(),
+  clearUser: vi.fn(),
 });
 
 const mockAuthResponse: AuthResponse = {
@@ -99,7 +101,7 @@ describe("LoginUseCase", () => {
         password: "wrongpassword",
       };
 
-      vi.mocked(mockAuthRepository.login).mockResolvedValue(
+      (mockAuthRepository.login as Mock).mockResolvedValue(
         failure(new UnauthorizedError("Username atau password salah"))
       );
 
@@ -119,7 +121,7 @@ describe("LoginUseCase", () => {
         password: "correctpassword",
       };
 
-      vi.mocked(mockAuthRepository.login).mockResolvedValue(
+      (mockAuthRepository.login as Mock).mockResolvedValue(
         success(mockAuthResponse)
       );
 
@@ -141,7 +143,7 @@ describe("LoginUseCase", () => {
         password: "admin123",
       };
 
-      vi.mocked(mockAuthRepository.login).mockResolvedValue(
+      (mockAuthRepository.login as Mock).mockResolvedValue(
         success(mockAuthResponse)
       );
 

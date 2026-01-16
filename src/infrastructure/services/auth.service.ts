@@ -1,8 +1,9 @@
-import { AuthResponse } from "@/core/entities";
+import { AuthResponse, User } from "@/core/entities";
 import { IAuthService } from "@/application/ports";
 
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
+const USER_KEY = "user_data";
 
 /**
  * Set cookie dengan options
@@ -59,6 +60,13 @@ export class AuthService implements IAuthService {
   storeTokens(authResponse: AuthResponse): void {
     setCookie(ACCESS_TOKEN_KEY, authResponse.access_token, 7); // 7 days
     setCookie(REFRESH_TOKEN_KEY, authResponse.refresh_token, 30); // 30 days
+    // Store user data in localStorage
+    this.storeUser(authResponse.user);
+  }
+
+  private storeUser(user: User): void {
+    if (typeof localStorage === "undefined") return;
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   getAccessToken(): string | null {
@@ -72,9 +80,26 @@ export class AuthService implements IAuthService {
   clearTokens(): void {
     deleteCookie(ACCESS_TOKEN_KEY);
     deleteCookie(REFRESH_TOKEN_KEY);
+    this.clearUser();
   }
 
   hasValidSession(): boolean {
     return !!this.getAccessToken();
+  }
+
+  getUser(): User | null {
+    if (typeof localStorage === "undefined") return null;
+    const userData = localStorage.getItem(USER_KEY);
+    if (!userData) return null;
+    try {
+      return JSON.parse(userData) as User;
+    } catch {
+      return null;
+    }
+  }
+
+  clearUser(): void {
+    if (typeof localStorage === "undefined") return;
+    localStorage.removeItem(USER_KEY);
   }
 }

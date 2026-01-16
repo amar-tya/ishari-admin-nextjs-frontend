@@ -42,4 +42,15 @@ export interface IAuthService {
    * @returns true jika ada access token
    */
   hasValidSession(): boolean;
+
+  /**
+   * Ambil user data dari storage
+   * @returns User atau null jika tidak ada
+   */
+  getUser(): import("@/core/entities").User | null;
+
+  /**
+   * Hapus user data dari storage
+   */
+  clearUser(): void;
 }

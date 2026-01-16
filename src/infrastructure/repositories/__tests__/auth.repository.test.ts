@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
 import { AuthRepository } from "../auth.repository";
 import { HttpClient } from "@/infrastructure/http";
 import {
@@ -56,7 +56,7 @@ describe("AuthRepository", () => {
         data: mockAuthResponse,
       };
 
-      vi.mocked(mockHttpClient.post).mockResolvedValue(
+      (mockHttpClient.post as Mock).mockResolvedValue(
         success({ data: apiResponse })
       );
 
@@ -78,7 +78,7 @@ describe("AuthRepository", () => {
         password: "password123",
       };
 
-      vi.mocked(mockHttpClient.post).mockResolvedValue(
+      (mockHttpClient.post as Mock).mockResolvedValue(
         failure(new NetworkError("Tidak dapat terhubung ke server"))
       );
 
@@ -96,7 +96,7 @@ describe("AuthRepository", () => {
         password: "wrongpassword",
       };
 
-      vi.mocked(mockHttpClient.post).mockResolvedValue(
+      (mockHttpClient.post as Mock).mockResolvedValue(
         failure(new UnauthorizedError("Username atau password salah"))
       );
 
@@ -111,16 +111,20 @@ describe("AuthRepository", () => {
 
   describe("logout()", () => {
     it("harus return success setelah logout berhasil", async () => {
-      vi.mocked(mockHttpClient.post).mockResolvedValue(success({ data: null }));
+      (mockHttpClient.post as Mock).mockResolvedValue(success({ data: null }));
 
       const result = await authRepository.logout();
 
       expect(result.success).toBe(true);
-      expect(mockHttpClient.post).toHaveBeenCalledWith("/auth/logout");
+      expect(mockHttpClient.post).toHaveBeenCalledWith(
+        "/api/auth/logout",
+        undefined,
+        {}
+      );
     });
 
     it("harus return failure jika logout gagal", async () => {
-      vi.mocked(mockHttpClient.post).mockResolvedValue(
+      (mockHttpClient.post as Mock).mockResolvedValue(
         failure(new NetworkError("Tidak dapat terhubung ke server"))
       );
 
@@ -140,7 +144,7 @@ describe("AuthRepository", () => {
         data: mockAuthResponse,
       };
 
-      vi.mocked(mockHttpClient.post).mockResolvedValue(
+      (mockHttpClient.post as Mock).mockResolvedValue(
         success({ data: apiResponse })
       );
 
@@ -158,7 +162,7 @@ describe("AuthRepository", () => {
     it("harus return failure jika refresh token expired", async () => {
       const refreshToken = "expired-refresh-token";
 
-      vi.mocked(mockHttpClient.post).mockResolvedValue(
+      (mockHttpClient.post as Mock).mockResolvedValue(
         failure(new UnauthorizedError("Refresh token expired"))
       );
 
