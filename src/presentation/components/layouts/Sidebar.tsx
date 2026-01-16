@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from './SidebarContext';
+import { useLayoutViewModel } from '@/presentation/view-models';
 import {
   MasterDataIcon,
   DashboardIcon,
@@ -57,6 +58,7 @@ const navGroups: NavGroup[] = [
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { isLoggingOut, handleLogout } = useLayoutViewModel();
 
   // Adjusted clamp logic: 
   // Collapsed: fixed 80px (icons centered)
@@ -168,18 +170,21 @@ export const Sidebar: React.FC = () => {
         {/* Logout */}
         <div style={{ padding: isCollapsed ? '1rem' : 'clamp(0.75rem, 1.5vw, 1rem)' }}>
           <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
             className={`
               flex items-center gap-3 w-full rounded-lg
               bg-red-50 text-red-600
               transition-all duration-200
               hover:bg-red-100 hover:shadow-sm
               font-medium
+              disabled:opacity-50 disabled:cursor-not-allowed
               ${isCollapsed ? 'justify-center p-3' : 'px-4 py-3'}
             `}
             title={isCollapsed ? "Logout" : ""}
           >
             <LogoutIcon />
-            {!isCollapsed && <span className="text-menu">Logout</span>}
+            {!isCollapsed && <span className="text-menu">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>}
           </button>
         </div>
       </div>

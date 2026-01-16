@@ -135,7 +135,12 @@ export class FetchHttpClient implements HttpClient {
   }
 
   private buildUrl(url: string): string {
+    // Skip baseURL for absolute URLs
     if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    // Skip baseURL for internal Next.js API routes (e.g., /api/auth/logout)
+    if (url.startsWith("/api/")) {
       return url;
     }
     return `${this.baseURL}${url}`;

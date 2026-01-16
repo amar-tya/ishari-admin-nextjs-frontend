@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useLayoutEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -11,13 +11,17 @@ interface SidebarContextType {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
-
 export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Start with false to ensure consistent SSR/client initial render
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const hasMounted = useRef(false);
 
-  // Check for mobile screen on mount and auto-collapse
-  useIsomorphicLayoutEffect(() => {
+  // Only run client-specific logic after hydration is complete
+  useEffect(() => {
+    // Skip if already mounted (prevents double-run in StrictMode)
+    if (hasMounted.current) return;
+    hasMounted.current = true;
+
     const checkScreenSize = () => {
       const isMobile = window.innerWidth < 768;
       const savedState = localStorage.getItem('sidebar-collapsed');
@@ -29,7 +33,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     };
 
-    // Initial check
+    // Initial check after mount
     checkScreenSize();
 
     const handleResize = () => {

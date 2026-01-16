@@ -39,7 +39,15 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async logout(): Promise<Result<void>> {
-    const result = await this.httpClient.post<void>("/auth/logout");
+    // Use dedicated logout route instead of proxy
+    // This route handles backend call and clears cookies server-side
+    const result = await this.httpClient.post<void>(
+      "/api/auth/logout",
+      undefined,
+      {
+        // Use absolute path to avoid proxy prefix
+      }
+    );
 
     if (!result.success) {
       return failure(result.error);
