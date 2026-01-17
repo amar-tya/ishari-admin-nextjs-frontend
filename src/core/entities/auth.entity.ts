@@ -28,26 +28,3 @@ export interface AuthResponse {
   refresh_token: string;
   expires_at: string;
 }
-
-/**
- * API Response wrapper untuk success
- */
-export interface ApiSuccessResponse<T> {
-  status: "success";
-  message: string;
-  data: T;
-}
-
-/**
- * API Response wrapper untuk error
- */
-export interface ApiErrorResponse {
-  status: "error";
-  message: string;
-  error: string;
-}
-
-/**
- * Union type untuk API response
- */
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
