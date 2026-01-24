@@ -1,11 +1,8 @@
 import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
 import { AuthRepository } from "../auth.repository";
 import { HttpClient } from "@/infrastructure/http";
-import {
-  LoginCredentials,
-  AuthResponse,
-  ApiSuccessResponse,
-} from "@/core/entities";
+import { LoginCredentials, AuthResponse } from "@/core/entities";
+import { ApiSuccessResponse } from "@/core/types";
 import { success, failure } from "@/core/types";
 import { NetworkError, UnauthorizedError } from "@/core/errors";
 
@@ -17,7 +14,7 @@ const createMockHttpClient = (): HttpClient =>
     put: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),
-  } as unknown as HttpClient);
+  }) as unknown as HttpClient;
 
 const mockAuthResponse: AuthResponse = {
   user: {

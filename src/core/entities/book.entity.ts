@@ -4,11 +4,24 @@
 export interface BookEntity {
   id: number;
   title: string;
-  author: string;
-  description: string;
-  isbn: string;
-  published_year: Date;
-  cover_image_url: string;
-  created_at: Date;
-  updated_at: Date;
+  author: string | null;
+  description: string | null;
+  publishedYear: Date | null;
+  coverImageUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Book Entity List
+ */
+export interface BookEntityList {
+  data: BookEntity[];
+  meta: {
+    total: number;
+    total_pages: number;
+    page: number;
+    limit: number;
+    count: number;
+  };
 }

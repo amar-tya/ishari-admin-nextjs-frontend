@@ -1,5 +1,6 @@
 import React from 'react';
 export * from './ChevronLeftIcon';
+export * from './CloseIcon';
 
 interface IconProps {
   className?: string;

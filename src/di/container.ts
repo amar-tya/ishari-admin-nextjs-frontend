@@ -1,7 +1,15 @@
-import { LoginUseCase } from "@/application/usecases";
+import {
+  CreateBookUseCase,
+  DeleteBookUseCase,
+  GetAllBooksUseCase,
+  LoginUseCase,
+  UpdateBookUseCase,
+} from "@/application/usecases";
+import { IBookRepository } from "@/application/ports";
 import { AuthRepository } from "@/infrastructure/repositories";
 import { AuthService } from "@/infrastructure/services";
 import { createHttpClient } from "@/infrastructure/http";
+import { BookRepository } from "@/infrastructure/repositories/book.repository";
 
 /**
  * Dependency Injection Container
@@ -11,8 +19,10 @@ import { createHttpClient } from "@/infrastructure/http";
  */
 
 // Infrastructure
+// Use /api/proxy as baseURL so all requests go through the proxy route
+// which handles bearer token injection from HttpOnly cookies
 const httpClient = createHttpClient({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "/api",
+  baseURL: "/api/proxy",
 });
 
 // Services
@@ -20,22 +30,38 @@ const authService = new AuthService();
 
 // Repositories
 const authRepository = new AuthRepository(httpClient);
+const bookRepository: IBookRepository = new BookRepository(httpClient);
 
-// Use Cases
+// Use Cases - Auth
 const loginUseCase = new LoginUseCase(authRepository, authService);
+
+// Use Cases - Book
+const createBookUseCase = new CreateBookUseCase(bookRepository);
+const updateBookUseCase = new UpdateBookUseCase(bookRepository);
+const deleteBookUseCase = new DeleteBookUseCase(bookRepository);
+// const getBookByIdUseCase = new GetBookByIdUseCase(bookRepository);
+const getAllBooksUseCase = new GetAllBooksUseCase(bookRepository);
 
 /**
  * Container exports
  */
 export const container = {
-  // Use Cases
+  // Use Cases - Auth
   loginUseCase,
+
+  // Use Cases - Book
+  createBookUseCase,
+  updateBookUseCase,
+  deleteBookUseCase,
+  // getBookByIdUseCase,
+  getAllBooksUseCase,
 
   // Services
   authService,
 
   // Repositories
   authRepository,
+  bookRepository,
 } as const;
 
 export type Container = typeof container;

@@ -1,10 +1,7 @@
 import { Result, success, failure } from "@/core/types";
 import { IAuthRepository } from "@/application/ports";
-import {
-  AuthResponse,
-  LoginCredentials,
-  ApiSuccessResponse,
-} from "@/core/entities";
+import { AuthResponse, LoginCredentials } from "@/core/entities";
+import { ApiSuccessResponse } from "@/core/types";
 import { HttpClient } from "@/infrastructure/http";
 import { ServerError } from "@/core/errors";
 
