@@ -30,8 +30,8 @@ function entityToFormData(entity: BookEntity): BookFormData {
     title: entity.title,
     author: entity.author ?? '',
     description: entity.description ?? '',
-    published_year: entity.publishedYear 
-      ? new Date(entity.publishedYear).getFullYear().toString() 
+    published_year: entity.publishedYear
+      ? new Date(entity.publishedYear).getFullYear().toString()
       : '',
     cover_image_url: entity.coverImageUrl ?? '',
   };
@@ -56,18 +56,19 @@ const BookFormInternal: React.FC<{
   initialData?: BookEntity;
 }> = ({ onClose, onSubmit, isLoading, mode, initialData }) => {
   // Initialize form data based on mode
-  const initialFormData = mode === 'edit' && initialData 
-    ? entityToFormData(initialData) 
-    : INITIAL_STATE;
+  const initialFormData =
+    mode === 'edit' && initialData
+      ? entityToFormData(initialData)
+      : INITIAL_STATE;
 
   const [formData, setFormData] = useState<BookFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.title.trim()) newErrors.title = 'Title is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -81,8 +82,8 @@ const BookFormInternal: React.FC<{
       title: formData.title,
       author: formData.author.trim() || undefined,
       description: formData.description.trim() || undefined,
-      published_year: formData.published_year.trim() 
-        ? new Date(parseInt(formData.published_year), 0, 1) 
+      published_year: formData.published_year.trim()
+        ? new Date(Number.parseInt(formData.published_year), 0, 1)
         : undefined,
       cover_image_url: formData.cover_image_url.trim() || undefined,
     };
@@ -94,16 +95,18 @@ const BookFormInternal: React.FC<{
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error when user types
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -111,7 +114,13 @@ const BookFormInternal: React.FC<{
     }
   };
 
-  const submitButtonText = isLoading ? 'Saving...' : (mode === 'edit' ? 'Update' : 'Simpan');
+  const getSubmitButtonText = (): string => {
+    if (isLoading) return 'Saving...';
+    if (mode === 'edit') return 'Update';
+    return 'Simpan';
+  };
+
+  const submitButtonText = getSubmitButtonText();
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -158,39 +167,46 @@ const BookFormInternal: React.FC<{
         />
 
         <div className="flex gap-4 items-start">
-           <div className="flex-1">
-              <Input
-                  label="Cover Image URL"
-                  name="cover_image_url"
-                  placeholder="https://example.com/cover.jpg"
-                  value={formData.cover_image_url}
-                  onChange={handleChange}
-                  error={errors.cover_image_url}
-                  helperText="Enter a valid URL for the book cover image."
-                  disabled={isLoading}
+          <div className="flex-1">
+            <Input
+              label="Cover Image URL"
+              name="cover_image_url"
+              placeholder="https://example.com/cover.jpg"
+              value={formData.cover_image_url}
+              onChange={handleChange}
+              error={errors.cover_image_url}
+              helperText="Enter a valid URL for the book cover image."
+              disabled={isLoading}
+            />
+          </div>
+          {/* Thumbnail Preview */}
+          <div className="mt-7 w-12 h-12 rounded bg-(--color-bg-base) border border-border flex items-center justify-center overflow-hidden shrink-0 text-text-muted">
+            {formData.cover_image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={formData.cover_image_url}
+                alt="Cover"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = ''; // Clear on error
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
-           </div>
-           {/* Thumbnail Preview */}
-           <div className="mt-7 w-12 h-12 rounded bg-[var(--color-bg-base)] border border-[var(--color-border)] flex items-center justify-center overflow-hidden shrink-0 text-[var(--color-text-muted)]">
-              {formData.cover_image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                      src={formData.cover_image_url} 
-                      alt="Cover" 
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                          (e.target as HTMLImageElement).src = ''; // Clear on error
-                          (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                  />
-              ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                  </svg>
-              )}
-           </div>
+            ) : (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            )}
+          </div>
         </div>
       </div>
 
@@ -204,11 +220,7 @@ const BookFormInternal: React.FC<{
         >
           Batal
         </Button>
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={isLoading}
-        >
+        <Button variant="primary" type="submit" disabled={isLoading}>
           {submitButtonText}
         </Button>
       </div>
@@ -228,16 +240,12 @@ export const BookForm: React.FC<BookFormProps> = ({
   initialData,
 }) => {
   const modalTitle = mode === 'edit' ? 'Edit Buku' : 'Tambah Buku';
-  
+
   // Generate a unique key based on mode and book ID to force re-mount
   const formKey = `${mode}-${initialData?.id ?? 'new'}`;
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={modalTitle}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={modalTitle}>
       <BookFormInternal
         key={formKey}
         onClose={onClose}

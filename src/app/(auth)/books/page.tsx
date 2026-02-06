@@ -1,14 +1,17 @@
-"use client";
+'use client';
 
-import React, { useEffect, useCallback } from "react";
-import { BookToolbar } from "@/presentation/components/books/BookToolbar";
-import { BookList, Book } from "@/presentation/components/books/BookList";
-import { Pagination } from "@/presentation/components/books/Pagination";
-import { BookForm, BookFormMode } from "@/presentation/components/books/BookForm";
-import { SuccessModal, ConfirmModal } from "@/presentation/components/base";
-import { useBookViewModel } from "@/presentation/view-models/book/BookViewModel";
-import { BookEntity } from "@/core/entities";
-import { CreateBookDTO, UpdateBookDTO } from "@/application";
+import React, { useEffect, useCallback } from 'react';
+import { BookToolbar } from '@/presentation/components/books/BookToolbar';
+import { BookList, Book } from '@/presentation/components/books/BookList';
+import { Pagination } from '@/presentation/components/books/Pagination';
+import {
+  BookForm,
+  BookFormMode,
+} from '@/presentation/components/books/BookForm';
+import { SuccessModal, ConfirmModal } from '@/presentation/components/base';
+import { useBookViewModel } from '@/presentation/view-models/book/BookViewModel';
+import { BookEntity } from '@/core/entities';
+import { CreateBookDTO, UpdateBookDTO } from '@/application';
 
 /**
  * Map BookEntity to Book interface for UI component
@@ -18,11 +21,11 @@ function mapBookEntityToBook(entity: BookEntity): Book {
     id: String(entity.id),
     displayId: `#${entity.id}`,
     title: entity.title,
-    author: entity.author ?? "-",
-    description: entity.description ?? "-",
+    author: entity.author ?? '-',
+    description: entity.description ?? '-',
     publishedYear: entity.publishedYear
       ? new Date(entity.publishedYear).getFullYear().toString()
-      : "-",
+      : '-',
     coverUrl: entity.coverImageUrl ?? undefined,
   };
 }
@@ -51,12 +54,12 @@ export default function BooksPage() {
   const handleSearch = useCallback(
     (query: string) => {
       setSearch(query);
-      
+
       // Clear previous timeout
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
-      
+
       // Delay search by 500ms
       searchTimeoutRef.current = setTimeout(() => {
         getBookList(1, query);
@@ -66,17 +69,19 @@ export default function BooksPage() {
   );
 
   const handleFilter = () => {
-    console.log("Filter clicked");
+    console.log('Filter clicked');
   };
 
   // Form Modal State
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<BookFormMode>('create');
-  const [editingBook, setEditingBook] = React.useState<BookEntity | undefined>(undefined);
-  
+  const [editingBook, setEditingBook] = React.useState<BookEntity | undefined>(
+    undefined
+  );
+
   // Success Modal State
   const [isSuccessModalOpen, setIsSuccessModalOpen] = React.useState(false);
-  const [successMessage, setSuccessMessage] = React.useState("");
+  const [successMessage, setSuccessMessage] = React.useState('');
 
   // Delete Confirm Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
@@ -92,7 +97,7 @@ export default function BooksPage() {
   const handleStoreBook = async (dto: CreateBookDTO): Promise<boolean> => {
     const success = await storeBook(dto);
     if (success) {
-      setSuccessMessage("Buku berhasil ditambahkan ke perpustakaan.");
+      setSuccessMessage('Buku berhasil ditambahkan ke perpustakaan.');
       setIsSuccessModalOpen(true);
     }
     return success;
@@ -101,17 +106,19 @@ export default function BooksPage() {
   // Handle submit for update
   const handleUpdateBook = async (dto: UpdateBookDTO): Promise<boolean> => {
     if (!editingBook) return false;
-    
+
     const success = await updateBook(editingBook.id, dto);
     if (success) {
-      setSuccessMessage("Buku berhasil diperbarui.");
+      setSuccessMessage('Buku berhasil diperbarui.');
       setIsSuccessModalOpen(true);
     }
     return success;
   };
 
   // Handle form submit (routes to create or update)
-  const handleFormSubmit = async (dto: CreateBookDTO | UpdateBookDTO): Promise<boolean> => {
+  const handleFormSubmit = async (
+    dto: CreateBookDTO | UpdateBookDTO
+  ): Promise<boolean> => {
     if (formMode === 'edit') {
       return handleUpdateBook(dto as UpdateBookDTO);
     }
@@ -120,7 +127,7 @@ export default function BooksPage() {
 
   const handleEdit = (id: string) => {
     // Find the book entity from the list
-    const bookEntity = bookList?.data.find(book => String(book.id) === id);
+    const bookEntity = bookList?.data.find((book) => String(book.id) === id);
     if (bookEntity) {
       setFormMode('edit');
       setEditingBook(bookEntity);
@@ -137,12 +144,12 @@ export default function BooksPage() {
   // Confirm delete action
   const handleConfirmDelete = async () => {
     if (!deleteBookId) return;
-    
-    const success = await removeBook(parseInt(deleteBookId));
+
+    const success = await removeBook(Number.parseInt(deleteBookId));
     if (success) {
       setIsDeleteModalOpen(false);
       setDeleteBookId(null);
-      setSuccessMessage("Buku berhasil dihapus.");
+      setSuccessMessage('Buku berhasil dihapus.');
       setIsSuccessModalOpen(true);
     }
   };
@@ -166,13 +173,11 @@ export default function BooksPage() {
   const meta = bookList?.meta;
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-main)] p-[clamp(1rem,2vw,2rem)] flex flex-col gap-[clamp(1.5rem,2.5vw,2.5rem)]">
+    <div className="min-h-screen bg-bg-main p-[clamp(1rem,2vw,2rem)] flex flex-col gap-[clamp(1.5rem,2.5vw,2.5rem)]">
       {/* Header Section */}
       <div className="flex flex-col gap-2">
-        <h1 className="text-heading text-[var(--color-text-primary)]">
-          Books Library
-        </h1>
-        <p className="text-[var(--color-text-secondary)] text-[clamp(0.875rem,1vw,1rem)]">
+        <h1 className="text-heading text-text-primary">Books Library</h1>
+        <p className="text-text-secondary text-[clamp(0.875rem,1vw,1rem)]">
           Manage, edit, and organize the complete collection of books.
         </p>
       </div>
@@ -188,7 +193,7 @@ export default function BooksPage() {
         {/* Loading State */}
         {isLoading && !bookList && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[var(--color-text-secondary)]">Loading...</div>
+            <div className="text-text-secondary">Loading...</div>
           </div>
         )}
 
