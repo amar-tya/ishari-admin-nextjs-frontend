@@ -1,9 +1,8 @@
-import { Result, success, failure } from "@/core/types";
-import { IAuthRepository } from "@/application/ports";
-import { AuthResponse, LoginCredentials } from "@/core/entities";
-import { ApiSuccessResponse } from "@/core/types";
-import { HttpClient } from "@/infrastructure/http";
-import { ServerError } from "@/core/errors";
+import { Result, success, failure, ApiSuccessResponse } from '@/core/types';
+import { IAuthRepository } from '@/application/ports';
+import { AuthResponse, LoginCredentials } from '@/core/entities';
+import { HttpClient } from '@/infrastructure/http';
+import { ServerError } from '@/core/errors';
 
 /**
  * AuthRepository - Auth API calls implementation
@@ -16,7 +15,7 @@ export class AuthRepository implements IAuthRepository {
 
   async login(credentials: LoginCredentials): Promise<Result<AuthResponse>> {
     const result = await this.httpClient.post<ApiSuccessResponse<AuthResponse>>(
-      "/auth/login",
+      '/auth/login',
       credentials
     );
 
@@ -27,19 +26,19 @@ export class AuthRepository implements IAuthRepository {
     // Extract data dari response wrapper
     const apiResponse = result.data.data;
 
-    if (apiResponse.status === "success") {
+    if (apiResponse.status === 'success') {
       return success(apiResponse.data);
     }
 
     // Handle unexpected response format
-    return failure(new ServerError("Unexpected response format"));
+    return failure(new ServerError('Unexpected response format'));
   }
 
   async logout(): Promise<Result<void>> {
     // Use dedicated logout route instead of proxy
     // This route handles backend call and clears cookies server-side
     const result = await this.httpClient.post<void>(
-      "/api/auth/logout",
+      '/api/auth/logout',
       undefined,
       {
         // Use absolute path to avoid proxy prefix
@@ -55,7 +54,7 @@ export class AuthRepository implements IAuthRepository {
 
   async refreshToken(refreshToken: string): Promise<Result<AuthResponse>> {
     const result = await this.httpClient.post<ApiSuccessResponse<AuthResponse>>(
-      "/auth/refresh",
+      '/auth/refresh',
       { refresh_token: refreshToken }
     );
 
@@ -65,10 +64,10 @@ export class AuthRepository implements IAuthRepository {
 
     const apiResponse = result.data.data;
 
-    if (apiResponse.status === "success") {
+    if (apiResponse.status === 'success') {
       return success(apiResponse.data);
     }
 
-    return failure(new ServerError("Unexpected response format"));
+    return failure(new ServerError('Unexpected response format'));
   }
 }
