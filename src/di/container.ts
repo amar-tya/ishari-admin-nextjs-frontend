@@ -1,15 +1,17 @@
 import {
   CreateBookUseCase,
   DeleteBookUseCase,
+  FindChapterUseCase,
   GetAllBooksUseCase,
   LoginUseCase,
   UpdateBookUseCase,
 } from "@/application/usecases";
 import { IBookRepository } from "@/application/ports";
-import { AuthRepository } from "@/infrastructure/repositories";
+import { AuthRepository, ChapterRepository } from "@/infrastructure/repositories";
 import { AuthService } from "@/infrastructure/services";
 import { createHttpClient } from "@/infrastructure/http";
 import { BookRepository } from "@/infrastructure/repositories/book.repository";
+import { IChapterRepository } from "@/application/ports/repository/chapter.repository.port";
 
 /**
  * Dependency Injection Container
@@ -31,6 +33,7 @@ const authService = new AuthService();
 // Repositories
 const authRepository = new AuthRepository(httpClient);
 const bookRepository: IBookRepository = new BookRepository(httpClient);
+const chapterRepository: IChapterRepository = new ChapterRepository(httpClient);
 
 // Use Cases - Auth
 const loginUseCase = new LoginUseCase(authRepository, authService);
@@ -41,6 +44,9 @@ const updateBookUseCase = new UpdateBookUseCase(bookRepository);
 const deleteBookUseCase = new DeleteBookUseCase(bookRepository);
 // const getBookByIdUseCase = new GetBookByIdUseCase(bookRepository);
 const getAllBooksUseCase = new GetAllBooksUseCase(bookRepository);
+
+// Use Cases - Chapter
+const findChapterUseCase = new FindChapterUseCase(chapterRepository);
 
 /**
  * Container exports
@@ -56,12 +62,16 @@ export const container = {
   // getBookByIdUseCase,
   getAllBooksUseCase,
 
+  // Use Cases - Chapter
+  findChapterUseCase,
+
   // Services
   authService,
 
   // Repositories
   authRepository,
   bookRepository,
+  chapterRepository,
 } as const;
 
 export type Container = typeof container;

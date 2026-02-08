@@ -24,15 +24,17 @@ export class ChapterRepository implements IChapterRepository {
       }
     });
 
-    const result = await this.httpClient.get<
-      ApiSuccessResponse<ListChapterApiResponse>
-    >(`/chapters?${queryParams.toString()}`);
+    const result = await this.httpClient.get<ListChapterApiResponse>(`/chapters?${queryParams.toString()}`);
 
     if (!result.success) {
       return failure(result.error);
     }
 
     // mapper data respont to domain
-    return success(ChapterMapper.toResponse(result.data.data.data));
+    const resultData = ChapterMapper.toResponse(result.data.data)
+    return success({
+      data: resultData.data,
+      meta: resultData.meta,
+    });
   }
 }
