@@ -12,3 +12,4 @@ export { ConfirmModal } from "./ConfirmModal";
 
 // Icons
 export * from "./icons";
+export { Select } from "./Select";

@@ -72,14 +72,14 @@ export const ChapterList: React.FC<ChapterListProps> = ({
                                     <td className="py-4 px-[clamp(1rem,1.5vw,1.5rem)]">
                                         <div className="font-medium text-[var(--color-text-primary)] text-[clamp(0.9rem,1.1vw,1.05rem)]">
                                             {/* Placeholder for Book Title */}
-                                            Book {chapter.bookId}
+                                            {chapter.title}
                                         </div>
                                     </td>
 
                                     {/* Chapter No */}
                                     <td className="py-4 px-[clamp(1rem,1.5vw,1.5rem)] text-center">
                                         <Badge variant="default" className="bg-gray-100 text-gray-800">
-                                            {chapter.chapterNumber.toString().padStart(2, '0')}
+                                            {chapter.chapterNumber ?? 0}
                                         </Badge>
                                     </td>
 

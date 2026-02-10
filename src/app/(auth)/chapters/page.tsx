@@ -2,23 +2,38 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useChapterViewModel } from "@/presentation/view-models/chapter/ChapterViewModel";
+import { useBookViewModel } from "@/presentation/view-models/book/BookViewModel";
 import { ChapterList } from "@/presentation/components/chapter/ChapterList";
 import { ChapterToolbar } from "@/presentation/components/chapter/ChapterToolbar";
 import { Pagination } from "@/presentation/components/books/Pagination";
+import { ChapterForm, ChapterFormMode } from "@/presentation/components/chapter/ChapterForm";
+import { ChapterEntity } from "@/core/entities";
+import { ChapterCreateRequest } from "@/application/dto";
 
 export default function ChapterPage() {
   const {
-    isLoading,
-    error,
+    isLoading: isChapterLoading,
+    error: chapterError,
     chapterList,
     findChapter,
     setCriteria,
+    createChapter,
   } = useChapterViewModel();
 
+  const {
+    getBookList,
+    bookList,
+    isLoading: isBooksLoading
+  } = useBookViewModel();
+
   const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formMode, setFormMode] = useState<ChapterFormMode>('create');
+  const [selectedChapter, setSelectedChapter] = useState<ChapterEntity | undefined>(undefined);
 
   useEffect(() => {
     findChapter();
+    getBookList(1, ""); // Fetch books for dropdown, maybe increase limit if possible or implement search in dropdown
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -47,12 +62,35 @@ export default function ChapterPage() {
   };
 
   const handleNewChapter = () => {
-    console.log("New Chapter clicked");
+    setFormMode('create');
+    setSelectedChapter(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleEditChapter = (chapter: ChapterEntity) => {
+    setFormMode('edit');
+    setSelectedChapter(chapter);
+    setIsModalOpen(true);
   };
 
   const handleBulkDelete = () => {
     console.log("Bulk Delete clicked");
   }
+
+  const handleFormSubmit = async (data: ChapterCreateRequest) => {
+    if (formMode === 'create') {
+      const success = await createChapter(data);
+      if (success) {
+        setIsModalOpen(false);
+      }
+      return success;
+    } else {
+      // Handle edit submission here
+      console.log("Update chapter", data);
+      setIsModalOpen(false);
+      return true;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-main)] p-[clamp(1rem,2vw,2rem)] flex flex-col gap-[clamp(1.5rem,2.5vw,2.5rem)]">
@@ -76,24 +114,24 @@ export default function ChapterPage() {
         />
 
         {/* Loading State */}
-        {isLoading && !chapterList && (
+        {isChapterLoading && !chapterList && (
           <div className="flex items-center justify-center py-12">
             <div className="text-[var(--color-text-secondary)]">Loading...</div>
           </div>
         )}
 
         {/* Error State */}
-        {error && (
+        {chapterError && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
+            {chapterError}
           </div>
         )}
 
         {/* Chapter List */}
-        {(!isLoading || chapterList) && !error && (
+        {(!isChapterLoading || chapterList) && !chapterError && (
           <ChapterList
             chapters={chapterList?.data || []}
-            onEdit={(chapter) => console.log('Edit', chapter)}
+            onEdit={handleEditChapter}
             onDelete={(chapter) => console.log('Delete', chapter)}
           />
         )}
@@ -109,6 +147,20 @@ export default function ChapterPage() {
           />
         )}
       </div>
+
+      {/* Create/Edit Modal */}
+      {isModalOpen && (
+        <ChapterForm
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleFormSubmit}
+          isLoading={isChapterLoading}
+          mode={formMode}
+          initialData={selectedChapter}
+          books={bookList?.data || []}
+        />
+      )}
     </div>
   );
 }
+

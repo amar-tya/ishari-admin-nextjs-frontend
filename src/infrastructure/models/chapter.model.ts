@@ -23,3 +23,30 @@ export interface ChaperApiMeta {
   limit: number;
   count: number;
 }
+
+export interface ChapterCreateApiRequest {
+  book_id: number;
+  chapter_number: number;
+  title: string;
+  category: string;
+  description?: string;
+  total_verses?: number;
+}
+
+export interface ChapterCreateApiResponse {
+  id: string;
+  book_id: number;
+  chapter_number: number;
+  title: string;
+  category: string;
+  description: string | null;
+  total_verse: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateChapterApiResponse {
+  status: string;
+  message: string;
+  data: ChapterCreateApiResponse;
+}

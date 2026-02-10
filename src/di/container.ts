@@ -1,5 +1,6 @@
 import {
   CreateBookUseCase,
+  CreateChapterUseCase,
   DeleteBookUseCase,
   FindChapterUseCase,
   GetAllBooksUseCase,
@@ -47,6 +48,7 @@ const getAllBooksUseCase = new GetAllBooksUseCase(bookRepository);
 
 // Use Cases - Chapter
 const findChapterUseCase = new FindChapterUseCase(chapterRepository);
+const createChapterUseCase = new CreateChapterUseCase(chapterRepository);
 
 /**
  * Container exports
@@ -64,6 +66,7 @@ export const container = {
 
   // Use Cases - Chapter
   findChapterUseCase,
+  createChapterUseCase,
 
   // Services
   authService,

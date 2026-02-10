@@ -1,4 +1,4 @@
-import { ChapterRequest, ChapterResponse } from "@/application/dto/chapter.dto";
+import { ChapterCreateRequest, ChapterRequest, ChapterResponse } from "@/application/dto";
 
 export interface ChapterViewModelState {
     isLoading: boolean;
@@ -9,6 +9,7 @@ export interface ChapterViewModelState {
 export interface ChapterViewModelActions {
     findChapter: () => Promise<void>;
     setCriteria: (criteria: ChapterRequest) => void;
+    createChapter: (criteria: ChapterCreateRequest) => Promise<boolean>;
 }
 
 export type ChapterViewModel = ChapterViewModelState & ChapterViewModelActions;

@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useChapter } from "@/presentation/hooks/useChapter";
-import { ChapterRequest, ChapterResponse } from "@/application/dto/chapter.dto";
+import { ChapterCreateRequest, ChapterRequest, ChapterResponse } from "@/application/dto";
 import { ChapterViewModel } from "./ChapterViewModel.types";
 import { getErrorMessage } from "@/shared/utils";
 
@@ -15,7 +15,8 @@ export type {
 
 export function useChapterViewModel(): ChapterViewModel {
     const {
-        findChapter: findChapterHook
+        findChapter: findChapterHook,
+        createChapter: createChapterHook
     } = useChapter();
 
     // state
@@ -53,11 +54,36 @@ export function useChapterViewModel(): ChapterViewModel {
         [findChapterHook, criteria],
     );
 
+    const createChapter = useCallback(
+        async (criteria: ChapterCreateRequest) => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const result = await createChapterHook(criteria);
+                if (result.success) {
+                    await findChapter();
+                    return true;
+                } else {
+                    setError(getErrorMessage(result.error));
+                    return false;
+                }
+            } catch (err) {
+                setError(getErrorMessage(err));
+                return false;
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [createChapterHook, findChapter],
+    );
+
     return {
         isLoading,
         error,
         chapterList,
         findChapter,
         setCriteria,
+        createChapter,
     }
 }

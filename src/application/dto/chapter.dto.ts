@@ -14,3 +14,12 @@ export interface ChapterRequest {
   chapterId?: number;
   category?: string;
 }
+
+export interface ChapterCreateRequest {
+  bookId: number;
+  chapterNumber: number;
+  title: string;
+  category: string;
+  description?: string;
+  totalVerses?: number;
+}

@@ -1,10 +1,9 @@
-import { ChapterRequest } from '@/application/dto/chapter.dto';
-import { PaginationResponse } from '@/application/dto/pagination.dto';
+import { ChapterCreateRequest, ChapterRequest, PaginationResponse } from '@/application/dto';
 import { ChapterEntity } from '@/core/entities';
 import { Result } from '@/core/types';
 
 export interface IChapterRepository {
-  // create()
+  create(request: ChapterCreateRequest): Promise<Result<ChapterEntity>>
   // update()
   // delete()
   // getById()

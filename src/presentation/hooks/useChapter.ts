@@ -1,18 +1,20 @@
 "use client";
 
-import { ChapterRequest, ChapterResponse } from "@/application/dto/chapter.dto";
+import { ChapterCreateRequest, ChapterRequest, ChapterResponse } from "@/application/dto";
+import { ChapterEntity } from "@/core/entities";
 import { mapResult, Result } from "@/core/types";
 import { container } from "@/di";
 import { useCallback } from "react";
 
 export interface UseChapter {
     findChapter: (criteria: ChapterRequest) => Promise<Result<ChapterResponse>>
+    createChapter: (criteria: ChapterCreateRequest) => Promise<Result<ChapterEntity>>
 }
 
 export function useChapter(): UseChapter {
-    const { findChapterUseCase } = container;
+    const { findChapterUseCase, createChapterUseCase } = container;
 
-    const fincChapter = useCallback(
+    const findChapter = useCallback(
         async (criteria: ChapterRequest): Promise<Result<ChapterResponse>> => {
             const result = await findChapterUseCase.execute(criteria);
 
@@ -24,7 +26,17 @@ export function useChapter(): UseChapter {
         [findChapterUseCase]
     )
 
+    const createChapter = useCallback(
+        async (criteria: ChapterCreateRequest): Promise<Result<ChapterEntity>> => {
+            const result = await createChapterUseCase.execute(criteria);
+
+            return result;
+        },
+        [createChapterUseCase]
+    )
+
     return {
-        findChapter: fincChapter
+        findChapter,
+        createChapter
     }
 }

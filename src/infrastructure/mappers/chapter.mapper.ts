@@ -1,8 +1,11 @@
+import { ChapterCreateRequest } from '@/application';
 import { PaginationResponse } from '@/application/dto/pagination.dto';
 import { ChapterEntity } from '@/core/entities';
 import {
   ChaperApiMeta,
   ChapterApiResponse,
+  ChapterCreateApiRequest,
+  ChapterCreateApiResponse,
   ListChapterApiResponse,
 } from '@/infrastructure/models';
 
@@ -21,6 +24,20 @@ export class ChapterMapper {
     };
   }
 
+  static toDomain2(apiData: ChapterCreateApiResponse): ChapterEntity {
+    return {
+      id: Number(apiData.id),
+      bookId: Number(apiData.book_id),
+      chapterNumber: Number(apiData.chapter_number),
+      title: apiData.title,
+      category: apiData.category,
+      description: apiData.description || '',
+      totalVerses: Number(apiData.total_verse),
+      createdAt: apiData.created_at,
+      updatedAt: apiData.updated_at,
+    };
+  }
+
   static toDomainList(apiDataList: ChapterApiResponse[]): ChapterEntity[] {
     return apiDataList.map((item) => ChapterMapper.toDomain(item));
   }
@@ -32,6 +49,17 @@ export class ChapterMapper {
       page: apiMeta.page,
       limit: apiMeta.limit,
       count: apiMeta.count,
+    };
+  }
+
+  static toCreateRequest(request: ChapterCreateRequest): ChapterCreateApiRequest {
+    return {
+      book_id: Number(request.bookId),
+      chapter_number: Number(request.chapterNumber),
+      title: request.title,
+      category: request.category,
+      description: request.description,
+      total_verses: Number(request.totalVerses),
     };
   }
 
