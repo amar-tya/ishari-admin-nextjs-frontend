@@ -17,14 +17,14 @@ export class ChapterMapper {
   static toDomain(apiData: ChapterApiResponse): ChapterEntity {
     return {
       id: Number(apiData.id),
-      bookId: Number(apiData.bookId),
-      chapterNumber: apiData.chapterNumber,
+      bookId: Number(apiData.book_id), // Map from book_id to bookId
+      chapterNumber: apiData.chapter_number, // Map from chapter_number to chapterNumber
       title: apiData.title,
       category: apiData.category,
       description: apiData.description,
-      totalVerses: apiData.totalVerses,
-      createdAt: apiData.createdAt,
-      updatedAt: apiData.updatedAt,
+      totalVerses: apiData.total_verses,
+      createdAt: apiData.created_at,
+      updatedAt: apiData.updated_at,
     };
   }
 
@@ -36,7 +36,7 @@ export class ChapterMapper {
       title: apiData.title,
       category: apiData.category,
       description: apiData.description || '',
-      totalVerses: Number(apiData.total_verse),
+      totalVerses: Number(apiData.total_verses),
       createdAt: apiData.created_at,
       updatedAt: apiData.updated_at,
     };

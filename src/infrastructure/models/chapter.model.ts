@@ -6,14 +6,14 @@ export interface ListChapterApiResponse {
 export interface ChapterApiResponse {
   id: string;
   name: string;
-  bookId: string;
-  chapterNumber: number;
+  book_id: string; // Changed from bookId to book_id
+  chapter_number: number; // Changed from chapterNumber to chapter_number
   title: string;
   category: string;
   description: string;
-  totalVerses: number;
-  createdAt: string;
-  updatedAt: string;
+  total_verses: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ChaperApiMeta {
@@ -40,7 +40,7 @@ export interface ChapterCreateApiResponse {
   title: string;
   category: string;
   description: string | null;
-  total_verse: number | null;
+  total_verses: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -68,7 +68,7 @@ export interface ChapterUpdateApiResponse {
   title: string;
   category: string;
   description: string | null;
-  total_verse: number | null;
+  total_verses: number | null;
   created_at: string;
   updated_at: string;
 }

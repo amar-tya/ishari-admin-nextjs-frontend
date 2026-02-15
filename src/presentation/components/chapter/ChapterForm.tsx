@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChapterCreateRequest } from '@/application/dto'; // Assuming request DTOs
+import { ChapterCreateRequest, ChapterUpdateRequest } from '@/application/dto';
 import { Modal, Input, TextArea, Button, Select } from '../base';
 import { ChapterEntity, BookEntity } from '@/core/entities';
 
@@ -17,7 +17,7 @@ export interface ChapterFormData {
 interface ChapterFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: ChapterCreateRequest) => Promise<boolean>;
+    onSubmit: (data: ChapterCreateRequest | ChapterUpdateRequest) => Promise<boolean>;
     isLoading?: boolean;
     mode?: ChapterFormMode;
     initialData?: ChapterEntity;
@@ -25,14 +25,15 @@ interface ChapterFormProps {
 }
 
 function entityToFormData(entity: ChapterEntity): ChapterFormData {
-    return {
-        bookId: entity.bookId.toString(),
-        chapterNumber: entity.chapterNumber.toString(),
-        title: entity.title,
-        category: entity.category,
+    const formData = {
+        bookId: entity.bookId ? entity.bookId.toString() : '',
+        chapterNumber: entity.chapterNumber ? entity.chapterNumber.toString() : '',
+        title: entity.title || '',
+        category: entity.category || '',
         totalVerses: entity.totalVerses ? entity.totalVerses.toString() : '0',
         description: entity.description || '',
     };
+    return formData;
 }
 
 const INITIAL_STATE: ChapterFormData = {
@@ -55,7 +56,7 @@ const CATEGORY_OPTIONS = [
 
 const ChapterFormInternal: React.FC<{
     onClose: () => void;
-    onSubmit: (data: ChapterCreateRequest) => Promise<boolean>;
+    onSubmit: (data: ChapterCreateRequest | ChapterUpdateRequest) => Promise<boolean>;
     isLoading: boolean;
     mode: ChapterFormMode;
     initialData?: ChapterEntity;
@@ -85,19 +86,30 @@ const ChapterFormInternal: React.FC<{
         e.preventDefault();
         if (!validate()) return;
 
-        const submitData: ChapterCreateRequest = {
-            bookId: Number(formData.bookId),
-            chapterNumber: Number(formData.chapterNumber),
-            title: formData.title,
-            category: formData.category,
-            totalVerses: Number(formData.totalVerses) || 0,
-            description: formData.description.trim() || undefined,
-        };
+        let submitData: ChapterCreateRequest | ChapterUpdateRequest;
 
-        // If edit mode, we might need ID or different DTO, but for now assuming create structure 
-        // or that parent handles the ID injection if needed (UpdateChapterDTO usually has ID).
-        // The prompt only showed Create modal, but said "create / edit". 
-        // I'll stick to ChapterCreateRequest structure for the data payload.
+        if (mode === 'edit' && initialData) {
+            // Edit mode: use ChapterUpdateRequest with chapterId
+            submitData = {
+                chapterId: initialData.id,
+                bookId: Number(formData.bookId),
+                chapterNumber: Number(formData.chapterNumber),
+                title: formData.title,
+                category: formData.category,
+                totalVerses: Number(formData.totalVerses) || 0,
+                description: formData.description.trim() || undefined,
+            } as ChapterUpdateRequest;
+        } else {
+            // Create mode: use ChapterCreateRequest
+            submitData = {
+                bookId: Number(formData.bookId),
+                chapterNumber: Number(formData.chapterNumber),
+                title: formData.title,
+                category: formData.category,
+                totalVerses: Number(formData.totalVerses) || 0,
+                description: formData.description.trim() || undefined,
+            } as ChapterCreateRequest;
+        }
 
         const success = await onSubmit(submitData);
 

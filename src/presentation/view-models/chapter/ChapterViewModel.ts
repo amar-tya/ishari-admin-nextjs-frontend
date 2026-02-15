@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useChapter } from '@/presentation/hooks/useChapter';
+import { useChapter } from '@/presentation/hooks';
 import {
   ChapterCreateRequest,
   ChapterRequest,

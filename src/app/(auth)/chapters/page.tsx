@@ -11,7 +11,8 @@ import {
   ChapterFormMode,
 } from '@/presentation/components/chapter/ChapterForm';
 import { ChapterEntity } from '@/core/entities';
-import { ChapterCreateRequest } from '@/application/dto';
+import { ChapterCreateRequest, ChapterUpdateRequest } from '@/application/dto';
+import { SuccessModal } from '@/presentation/components/base/SuccessModal';
 
 export default function ChapterPage() {
   const {
@@ -21,13 +22,10 @@ export default function ChapterPage() {
     findChapter,
     setCriteria,
     createChapter,
+    updateChapter,
   } = useChapterViewModel();
 
-  const {
-    getBookList,
-    bookList,
-    isLoading: isBooksLoading,
-  } = useBookViewModel();
+  const { getBookList, bookList } = useBookViewModel();
 
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,6 +50,13 @@ export default function ChapterPage() {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+
+  // Success Modal State
+  const [successModal, setSuccessModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+  });
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -85,19 +90,37 @@ export default function ChapterPage() {
     console.log('Bulk Delete clicked');
   };
 
-  const handleFormSubmit = async (data: ChapterCreateRequest) => {
+  const handleFormSubmit = async (
+    data: ChapterCreateRequest | ChapterUpdateRequest
+  ) => {
     if (formMode === 'create') {
-      const success = await createChapter(data);
+      const success = await createChapter(data as ChapterCreateRequest);
       if (success) {
         setIsModalOpen(false);
+        setSuccessModal({
+          isOpen: true,
+          title: 'Berhasil Membuat Chapter',
+          message: 'Chapter baru berhasil ditambahkan ke dalam sistem.',
+        });
       }
       return success;
     } else {
-      // Handle edit submission here
-      console.log('Update chapter', data);
-      setIsModalOpen(false);
-      return true;
+      // The form already includes chapterId in edit mode
+      const success = await updateChapter(data as ChapterUpdateRequest);
+      if (success) {
+        setIsModalOpen(false);
+        setSuccessModal({
+          isOpen: true,
+          title: 'Berhasil Update Chapter',
+          message: 'Data chapter berhasil diperbarui.',
+        });
+      }
+      return success;
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setSuccessModal((prev) => ({ ...prev, isOpen: false }));
   };
 
   return (
@@ -168,6 +191,14 @@ export default function ChapterPage() {
           books={bookList?.data || []}
         />
       )}
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={handleCloseSuccessModal}
+        title={successModal.title}
+        message={successModal.message}
+      />
     </div>
   );
 }
