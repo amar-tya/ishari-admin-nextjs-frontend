@@ -1,4 +1,7 @@
-import { ChapterCreateRequest } from '@/application';
+import {
+  ChapterCreateRequest,
+  ChapterUpdateRequest,
+} from '@/application/dto/chapter.dto';
 import { PaginationResponse } from '@/application/dto/pagination.dto';
 import { ChapterEntity } from '@/core/entities';
 import {
@@ -6,6 +9,7 @@ import {
   ChapterApiResponse,
   ChapterCreateApiRequest,
   ChapterCreateApiResponse,
+  ChapterUpdateApiRequest,
   ListChapterApiResponse,
 } from '@/infrastructure/models';
 
@@ -52,7 +56,9 @@ export class ChapterMapper {
     };
   }
 
-  static toCreateRequest(request: ChapterCreateRequest): ChapterCreateApiRequest {
+  static toCreateRequest(
+    request: ChapterCreateRequest
+  ): ChapterCreateApiRequest {
     return {
       book_id: Number(request.bookId),
       chapter_number: Number(request.chapterNumber),
@@ -70,6 +76,20 @@ export class ChapterMapper {
     return {
       data: ChapterMapper.toDomainList(apiData.data),
       meta: ChapterMapper.toMeta(apiData.meta),
+    };
+  }
+
+  static toUpdateRequest(
+    request: ChapterUpdateRequest
+  ): ChapterUpdateApiRequest {
+    return {
+      id: String(request.chapterId),
+      book_id: Number(request.bookId),
+      chapter_number: Number(request.chapterNumber),
+      title: request.title!,
+      category: request.category!,
+      description: request.description,
+      total_verses: Number(request.totalVerses),
     };
   }
 }

@@ -50,3 +50,30 @@ export interface CreateChapterApiResponse {
   message: string;
   data: ChapterCreateApiResponse;
 }
+
+export interface ChapterUpdateApiRequest {
+  id: string;
+  book_id: number;
+  chapter_number: number;
+  title: string;
+  category: string;
+  description?: string;
+  total_verses?: number;
+}
+
+export interface ChapterUpdateApiResponse {
+  id: string;
+  book_id: number;
+  chapter_number: number;
+  title: string;
+  category: string;
+  description: string | null;
+  total_verse: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateChapterApiResponse {
+  status: string;
+  data: ChapterUpdateApiResponse;
+}

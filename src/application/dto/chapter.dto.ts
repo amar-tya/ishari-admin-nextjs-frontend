@@ -23,3 +23,13 @@ export interface ChapterCreateRequest {
   description?: string;
   totalVerses?: number;
 }
+
+export interface ChapterUpdateRequest {
+  chapterId: number;
+  bookId?: number;
+  chapterNumber?: number;
+  title?: string;
+  category?: string;
+  description?: string;
+  totalVerses?: number;
+}

@@ -6,13 +6,17 @@ import {
   GetAllBooksUseCase,
   LoginUseCase,
   UpdateBookUseCase,
-} from "@/application/usecases";
-import { IBookRepository } from "@/application/ports";
-import { AuthRepository, ChapterRepository } from "@/infrastructure/repositories";
-import { AuthService } from "@/infrastructure/services";
-import { createHttpClient } from "@/infrastructure/http";
-import { BookRepository } from "@/infrastructure/repositories/book.repository";
-import { IChapterRepository } from "@/application/ports/repository/chapter.repository.port";
+  UpdateChapterUseCase,
+} from '@/application/usecases';
+import { IBookRepository } from '@/application/ports';
+import {
+  AuthRepository,
+  ChapterRepository,
+} from '@/infrastructure/repositories';
+import { AuthService } from '@/infrastructure/services';
+import { createHttpClient } from '@/infrastructure/http';
+import { BookRepository } from '@/infrastructure/repositories/book.repository';
+import { IChapterRepository } from '@/application/ports/repository/chapter.repository.port';
 
 /**
  * Dependency Injection Container
@@ -25,7 +29,7 @@ import { IChapterRepository } from "@/application/ports/repository/chapter.repos
 // Use /api/proxy as baseURL so all requests go through the proxy route
 // which handles bearer token injection from HttpOnly cookies
 const httpClient = createHttpClient({
-  baseURL: "/api/proxy",
+  baseURL: '/api/proxy',
 });
 
 // Services
@@ -49,6 +53,7 @@ const getAllBooksUseCase = new GetAllBooksUseCase(bookRepository);
 // Use Cases - Chapter
 const findChapterUseCase = new FindChapterUseCase(chapterRepository);
 const createChapterUseCase = new CreateChapterUseCase(chapterRepository);
+const updateChapterUseCase = new UpdateChapterUseCase(chapterRepository);
 
 /**
  * Container exports
@@ -67,6 +72,7 @@ export const container = {
   // Use Cases - Chapter
   findChapterUseCase,
   createChapterUseCase,
+  updateChapterUseCase,
 
   // Services
   authService,

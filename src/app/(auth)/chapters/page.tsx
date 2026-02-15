@@ -1,14 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { useChapterViewModel } from "@/presentation/view-models/chapter/ChapterViewModel";
-import { useBookViewModel } from "@/presentation/view-models/book/BookViewModel";
-import { ChapterList } from "@/presentation/components/chapter/ChapterList";
-import { ChapterToolbar } from "@/presentation/components/chapter/ChapterToolbar";
-import { Pagination } from "@/presentation/components/books/Pagination";
-import { ChapterForm, ChapterFormMode } from "@/presentation/components/chapter/ChapterForm";
-import { ChapterEntity } from "@/core/entities";
-import { ChapterCreateRequest } from "@/application/dto";
+import { useEffect, useState, useCallback } from 'react';
+import { useChapterViewModel } from '@/presentation/view-models/chapter/ChapterViewModel';
+import { useBookViewModel } from '@/presentation/view-models/book/BookViewModel';
+import { ChapterList } from '@/presentation/components/chapter/ChapterList';
+import { ChapterToolbar } from '@/presentation/components/chapter/ChapterToolbar';
+import { Pagination } from '@/presentation/components/books/Pagination';
+import {
+  ChapterForm,
+  ChapterFormMode,
+} from '@/presentation/components/chapter/ChapterForm';
+import { ChapterEntity } from '@/core/entities';
+import { ChapterCreateRequest } from '@/application/dto';
 
 export default function ChapterPage() {
   const {
@@ -23,17 +26,19 @@ export default function ChapterPage() {
   const {
     getBookList,
     bookList,
-    isLoading: isBooksLoading
+    isLoading: isBooksLoading,
   } = useBookViewModel();
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<ChapterFormMode>('create');
-  const [selectedChapter, setSelectedChapter] = useState<ChapterEntity | undefined>(undefined);
+  const [selectedChapter, setSelectedChapter] = useState<
+    ChapterEntity | undefined
+  >(undefined);
 
   useEffect(() => {
     findChapter();
-    getBookList(1, ""); // Fetch books for dropdown, maybe increase limit if possible or implement search in dropdown
+    getBookList(1, ''); // Fetch books for dropdown, maybe increase limit if possible or implement search in dropdown
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -48,17 +53,20 @@ export default function ChapterPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
-  const handlePageChange = useCallback((page: number) => {
-    setCriteria({ page, limit: 10, search });
-    findChapter();
-  }, [search, setCriteria, findChapter]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCriteria({ page, limit: 10, search });
+      findChapter();
+    },
+    [search, setCriteria, findChapter]
+  );
 
   const handleSearch = (query: string) => {
     setSearch(query);
   };
 
   const handleFilter = () => {
-    console.log("Filter clicked");
+    console.log('Filter clicked');
   };
 
   const handleNewChapter = () => {
@@ -74,8 +82,8 @@ export default function ChapterPage() {
   };
 
   const handleBulkDelete = () => {
-    console.log("Bulk Delete clicked");
-  }
+    console.log('Bulk Delete clicked');
+  };
 
   const handleFormSubmit = async (data: ChapterCreateRequest) => {
     if (formMode === 'create') {
@@ -86,20 +94,20 @@ export default function ChapterPage() {
       return success;
     } else {
       // Handle edit submission here
-      console.log("Update chapter", data);
+      console.log('Update chapter', data);
       setIsModalOpen(false);
       return true;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-main)] p-[clamp(1rem,2vw,2rem)] flex flex-col gap-[clamp(1.5rem,2.5vw,2.5rem)]">
+    <div className="min-h-screen bg-bg-main p-[clamp(1rem,2vw,2rem)] flex flex-col gap-[clamp(1.5rem,2.5vw,2.5rem)]">
       {/* Header Section */}
       <div className="flex flex-col gap-2">
-        <h1 className="text-[clamp(1.5rem,2.5vw,2rem)] font-bold text-[var(--color-text-primary)]">
+        <h1 className="text-[clamp(1.5rem,2.5vw,2rem)] font-bold text-primary">
           Chapters Library
         </h1>
-        <p className="text-[var(--color-text-secondary)] text-[clamp(0.875rem,1vw,1rem)]">
+        <p className="text-text-secondary text-[clamp(0.875rem,1vw,1rem)]">
           Manage, edit, and organize the complete collection of book chapters.
         </p>
       </div>
@@ -116,7 +124,7 @@ export default function ChapterPage() {
         {/* Loading State */}
         {isChapterLoading && !chapterList && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-[var(--color-text-secondary)]">Loading...</div>
+            <div className="text-text-secondary">Loading...</div>
           </div>
         )}
 
@@ -163,4 +171,3 @@ export default function ChapterPage() {
     </div>
   );
 }
-
