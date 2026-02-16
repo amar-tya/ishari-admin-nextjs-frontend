@@ -10,7 +10,8 @@ import { Result } from '@/core/types';
 export interface IChapterRepository {
   create(request: ChapterCreateRequest): Promise<Result<ChapterEntity>>;
   update(request: ChapterUpdateRequest): Promise<Result<ChapterEntity>>;
-  // delete()
+  delete(id: number): Promise<Result<boolean>>;
+  bulkDelete(ids: number[]): Promise<Result<boolean>>;
   // getById()
   findChapter(
     criteria: ChapterRequest

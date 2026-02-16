@@ -1,7 +1,9 @@
 import {
+  BulkDeleteChapterUseCase,
   CreateBookUseCase,
   CreateChapterUseCase,
   DeleteBookUseCase,
+  DeleteChapterUseCase,
   FindChapterUseCase,
   GetAllBooksUseCase,
   LoginUseCase,
@@ -54,6 +56,10 @@ const getAllBooksUseCase = new GetAllBooksUseCase(bookRepository);
 const findChapterUseCase = new FindChapterUseCase(chapterRepository);
 const createChapterUseCase = new CreateChapterUseCase(chapterRepository);
 const updateChapterUseCase = new UpdateChapterUseCase(chapterRepository);
+const deleteChapterUseCase = new DeleteChapterUseCase(chapterRepository);
+const bulkDeleteChapterUseCase = new BulkDeleteChapterUseCase(
+  chapterRepository
+);
 
 /**
  * Container exports
@@ -73,6 +79,8 @@ export const container = {
   findChapterUseCase,
   createChapterUseCase,
   updateChapterUseCase,
+  deleteChapterUseCase,
+  bulkDeleteChapterUseCase,
 
   // Services
   authService,

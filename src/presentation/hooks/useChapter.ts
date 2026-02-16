@@ -19,11 +19,18 @@ export interface UseChapter {
   updateChapter: (
     criteria: ChapterUpdateRequest
   ) => Promise<Result<ChapterEntity>>;
+  deleteChapter: (id: number) => Promise<Result<boolean>>;
+  bulkDeleteChapter: (ids: number[]) => Promise<Result<boolean>>;
 }
 
 export function useChapter(): UseChapter {
-  const { findChapterUseCase, createChapterUseCase, updateChapterUseCase } =
-    container;
+  const {
+    findChapterUseCase,
+    createChapterUseCase,
+    updateChapterUseCase,
+    deleteChapterUseCase,
+    bulkDeleteChapterUseCase,
+  } = container;
 
   const findChapter = useCallback(
     async (criteria: ChapterRequest): Promise<Result<ChapterResponse>> => {
@@ -55,9 +62,29 @@ export function useChapter(): UseChapter {
     [updateChapterUseCase]
   );
 
+  const deleteChapter = useCallback(
+    async (id: number): Promise<Result<boolean>> => {
+      const result = await deleteChapterUseCase.execute(id);
+
+      return result;
+    },
+    [deleteChapterUseCase]
+  );
+
+  const bulkDeleteChapter = useCallback(
+    async (ids: number[]): Promise<Result<boolean>> => {
+      const result = await bulkDeleteChapterUseCase.execute(ids);
+
+      return result;
+    },
+    [bulkDeleteChapterUseCase]
+  );
+
   return {
     findChapter,
     createChapter,
     updateChapter,
+    deleteChapter,
+    bulkDeleteChapter,
   };
 }

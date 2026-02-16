@@ -13,6 +13,7 @@ import {
 import { ChapterEntity } from '@/core/entities';
 import { ChapterCreateRequest, ChapterUpdateRequest } from '@/application/dto';
 import { SuccessModal } from '@/presentation/components/base/SuccessModal';
+import { ConfirmModal } from '@/presentation/components/base/ConfirmModal';
 
 export default function ChapterPage() {
   const {
@@ -20,9 +21,10 @@ export default function ChapterPage() {
     error: chapterError,
     chapterList,
     findChapter,
-    setCriteria,
     createChapter,
     updateChapter,
+    deleteChapter,
+    bulkDeleteChapter,
   } = useChapterViewModel();
 
   const { getBookList, bookList } = useBookViewModel();
@@ -33,6 +35,7 @@ export default function ChapterPage() {
   const [selectedChapter, setSelectedChapter] = useState<
     ChapterEntity | undefined
   >(undefined);
+  const [selectedChapterIds, setSelectedChapterIds] = useState<number[]>([]);
 
   useEffect(() => {
     findChapter();
@@ -43,8 +46,7 @@ export default function ChapterPage() {
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      setCriteria({ page: 1, limit: 10, search });
-      findChapter();
+      findChapter({ page: 1, limit: 10, search });
     }, 500);
 
     return () => clearTimeout(timer);
@@ -58,12 +60,20 @@ export default function ChapterPage() {
     message: '',
   });
 
+  // Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'delete' as 'delete' | 'confirm',
+    onConfirm: async () => {},
+  });
+
   const handlePageChange = useCallback(
     (page: number) => {
-      setCriteria({ page, limit: 10, search });
-      findChapter();
+      findChapter({ page, limit: 10, search });
     },
-    [search, setCriteria, findChapter]
+    [search, findChapter]
   );
 
   const handleSearch = (query: string) => {
@@ -86,8 +96,53 @@ export default function ChapterPage() {
     setIsModalOpen(true);
   };
 
+  const handleDelete = (chapter: ChapterEntity) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Hapus Chapter',
+      message: `Apakah Anda yakin ingin menghapus chapter "${chapter.title}"?`,
+      type: 'delete',
+      onConfirm: async () => {
+        if (chapter.id) {
+          const success = await deleteChapter(chapter.id);
+          if (success) {
+            setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+            setSuccessModal({
+              isOpen: true,
+              title: 'Berhasil Menghapus Chapter',
+              message: 'Chapter berhasil dihapus dari sistem.',
+            });
+          }
+        }
+      },
+    });
+  };
+
   const handleBulkDelete = () => {
-    console.log('Bulk Delete clicked');
+    if (selectedChapterIds.length === 0) return;
+
+    setConfirmModal({
+      isOpen: true,
+      title: 'Hapus Chapter Terpilih',
+      message: `Apakah Anda yakin ingin menghapus ${selectedChapterIds.length} chapter terpilih?`,
+      type: 'delete',
+      onConfirm: async () => {
+        const success = await bulkDeleteChapter(selectedChapterIds);
+        if (success) {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+          setSuccessModal({
+            isOpen: true,
+            title: 'Berhasil Menghapus Chapter',
+            message: `${selectedChapterIds.length} chapter berhasil dihapus dari sistem.`,
+          });
+          setSelectedChapterIds([]);
+        }
+      },
+    });
+  };
+
+  const handleSelectionChange = (ids: number[]) => {
+    setSelectedChapterIds(ids);
   };
 
   const handleFormSubmit = async (
@@ -163,7 +218,9 @@ export default function ChapterPage() {
           <ChapterList
             chapters={chapterList?.data || []}
             onEdit={handleEditChapter}
-            onDelete={(chapter) => console.log('Delete', chapter)}
+            onDelete={handleDelete}
+            selectedIds={selectedChapterIds}
+            onSelectionChange={handleSelectionChange}
           />
         )}
 
@@ -198,6 +255,17 @@ export default function ChapterPage() {
         onClose={handleCloseSuccessModal}
         title={successModal.title}
         message={successModal.message}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        isLoading={isChapterLoading}
+        variant="danger"
       />
     </div>
   );

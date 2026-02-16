@@ -79,4 +79,29 @@ export class ChapterRepository implements IChapterRepository {
     const resultData = ChapterMapper.toDomain2(result.data.data.data);
     return success(resultData);
   }
+
+  async delete(id: number): Promise<Result<boolean>> {
+    const result = await this.httpClient.delete<ApiSuccessResponse<void>>(
+      `/chapters/${id}`
+    );
+
+    if (!result.success) {
+      return failure(result.error);
+    }
+
+    return success(true);
+  }
+
+  async bulkDelete(ids: number[]): Promise<Result<boolean>> {
+    const result = await this.httpClient.post<ApiSuccessResponse<void>>(
+      `/chapters/bulk-delete`,
+      { ids }
+    );
+
+    if (!result.success) {
+      return failure(result.error);
+    }
+
+    return success(true);
+  }
 }

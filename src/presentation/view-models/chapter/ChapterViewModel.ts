@@ -22,6 +22,8 @@ export function useChapterViewModel(): ChapterViewModel {
     findChapter: findChapterHook,
     createChapter: createChapterHook,
     updateChapter: updateChapterHook,
+    deleteChapter: deleteChapterHook,
+    bulkDeleteChapter: bulkDeleteChapterHook,
   } = useChapter();
 
   // state
@@ -38,23 +40,33 @@ export function useChapterViewModel(): ChapterViewModel {
   });
 
   // Action
-  const findChapter = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const findChapter = useCallback(
+    async (newCriteria?: Partial<ChapterRequest>) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await findChapterHook(criteria);
-      if (result.success) {
-        setChapterList(result.data);
-      } else {
-        setError(getErrorMessage(result.error));
+      let criteriaToUse = criteria;
+
+      if (newCriteria) {
+        criteriaToUse = { ...criteria, ...newCriteria };
+        setCriteria(criteriaToUse);
       }
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [findChapterHook, criteria]);
+
+      try {
+        const result = await findChapterHook(criteriaToUse);
+        if (result.success) {
+          setChapterList(result.data);
+        } else {
+          setError(getErrorMessage(result.error));
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [findChapterHook, criteria]
+  );
 
   const createChapter = useCallback(
     async (criteria: ChapterCreateRequest) => {
@@ -104,6 +116,54 @@ export function useChapterViewModel(): ChapterViewModel {
     [updateChapterHook, findChapter]
   );
 
+  const deleteChapter = useCallback(
+    async (id: number) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await deleteChapterHook(id);
+        if (result.success) {
+          await findChapter();
+          return true;
+        } else {
+          setError(getErrorMessage(result.error));
+          return false;
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [deleteChapterHook, findChapter]
+  );
+
+  const bulkDeleteChapter = useCallback(
+    async (ids: number[]) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await bulkDeleteChapterHook(ids);
+        if (result.success) {
+          await findChapter();
+          return true;
+        } else {
+          setError(getErrorMessage(result.error));
+          return false;
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [bulkDeleteChapterHook, findChapter]
+  );
+
   return {
     isLoading,
     error,
@@ -112,5 +172,7 @@ export function useChapterViewModel(): ChapterViewModel {
     setCriteria,
     createChapter,
     updateChapter,
+    deleteChapter,
+    bulkDeleteChapter,
   };
 }

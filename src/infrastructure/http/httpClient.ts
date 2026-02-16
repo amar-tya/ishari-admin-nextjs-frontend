@@ -1,4 +1,4 @@
-import { Result } from "@/core/types";
+import { Result } from '@/core/types';
 
 /**
  * Request Options untuk HTTP Client
@@ -44,6 +44,7 @@ export interface HttpClient {
   ): Promise<Result<HttpResponse<T>>>;
   delete<T>(
     url: string,
+    body?: unknown,
     options?: RequestOptions
   ): Promise<Result<HttpResponse<T>>>;
 }
