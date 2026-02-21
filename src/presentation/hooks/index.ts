@@ -8,3 +8,4 @@ export * from './useAuth';
 export * from './useUser';
 export * from './useBook';
 export * from './useChapter';
+export * from './useVerse';

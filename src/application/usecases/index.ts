@@ -1,3 +1,4 @@
 export * from './login.usecase';
 export * from './book';
 export * from './chapter';
+export * from './verse';

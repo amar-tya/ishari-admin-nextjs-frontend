@@ -5,12 +5,13 @@ import {
   DeleteBookUseCase,
   DeleteChapterUseCase,
   FindChapterUseCase,
+  FindVerseUseCase,
   GetAllBooksUseCase,
   LoginUseCase,
   UpdateBookUseCase,
   UpdateChapterUseCase,
 } from '@/application/usecases';
-import { IBookRepository } from '@/application/ports';
+import { IBookRepository, IVerseRepositoryPort } from '@/application/ports';
 import {
   AuthRepository,
   ChapterRepository,
@@ -19,6 +20,7 @@ import { AuthService } from '@/infrastructure/services';
 import { createHttpClient } from '@/infrastructure/http';
 import { BookRepository } from '@/infrastructure/repositories/book.repository';
 import { IChapterRepository } from '@/application/ports/repository/chapter.repository.port';
+import { VerseRepository } from '@/infrastructure/repositories/verse.repository';
 
 /**
  * Dependency Injection Container
@@ -41,6 +43,7 @@ const authService = new AuthService();
 const authRepository = new AuthRepository(httpClient);
 const bookRepository: IBookRepository = new BookRepository(httpClient);
 const chapterRepository: IChapterRepository = new ChapterRepository(httpClient);
+const verseRepository: IVerseRepositoryPort = new VerseRepository(httpClient);
 
 // Use Cases - Auth
 const loginUseCase = new LoginUseCase(authRepository, authService);
@@ -60,6 +63,9 @@ const deleteChapterUseCase = new DeleteChapterUseCase(chapterRepository);
 const bulkDeleteChapterUseCase = new BulkDeleteChapterUseCase(
   chapterRepository
 );
+
+// Use Cases - Verse
+const findVerseUseCase = new FindVerseUseCase(verseRepository);
 
 /**
  * Container exports
@@ -81,6 +87,9 @@ export const container = {
   updateChapterUseCase,
   deleteChapterUseCase,
   bulkDeleteChapterUseCase,
+
+  // Use Cases - Verse
+  findVerseUseCase,
 
   // Services
   authService,
