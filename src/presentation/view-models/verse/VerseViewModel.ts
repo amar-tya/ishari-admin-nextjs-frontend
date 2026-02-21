@@ -16,7 +16,13 @@ import { getErrorMessage } from '@/shared/utils';
 export type { VerseViewModel, VerseViewModelActions, VerseViewModelState };
 
 export function useVerseViewModel(): VerseViewModel {
-  const { findVerse: findVerseHook } = useVerse();
+  const {
+    findVerse: findVerseHook,
+    createVerse: createVerseHook,
+    updateVerse: updateVerseHook,
+    deleteVerse: deleteVerseHook,
+    bulkDeleteVerse: bulkDeleteVerseHook,
+  } = useVerse();
 
   // state
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +34,7 @@ export function useVerseViewModel(): VerseViewModel {
     search: '',
     chapterId: 0,
     arabicText: '',
-    transliterationText: '',
+    transliteration: '',
   });
 
   // Action
@@ -60,25 +66,101 @@ export function useVerseViewModel(): VerseViewModel {
     [findVerseHook, criteria]
   );
 
-  const createVerse = useCallback(async (data: VerseCreateRequest) => {
-    console.log('Create Verse', data);
-    return true;
-  }, []);
+  const createVerse = useCallback(
+    async (data: VerseCreateRequest) => {
+      setIsLoading(true);
+      setError(null);
 
-  const updateVerse = useCallback(async (data: VerseUpdateRequest) => {
-    console.log('Update Verse', data);
-    return true;
-  }, []);
+      try {
+        const result = await createVerseHook(data);
+        if (result.success) {
+          await findVerse();
+          return true;
+        } else {
+          setError(getErrorMessage(result.error));
+          return false;
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [createVerseHook, findVerse]
+  );
 
-  const deleteVerse = useCallback(async (id: number) => {
-    console.log('Delete Verse', id);
-    return true;
-  }, []);
+  const updateVerse = useCallback(
+    async (data: VerseUpdateRequest) => {
+      setIsLoading(true);
+      setError(null);
 
-  const bulkDeleteVerse = useCallback(async (ids: number[]) => {
-    console.log('Bulk Delete Verses', ids);
-    return true;
-  }, []);
+      try {
+        const result = await updateVerseHook(data);
+        if (result.success) {
+          await findVerse();
+          return true;
+        } else {
+          setError(getErrorMessage(result.error));
+          return false;
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [updateVerseHook, findVerse]
+  );
+
+  const deleteVerse = useCallback(
+    async (id: number) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await deleteVerseHook(id);
+        if (result.success) {
+          await findVerse();
+          return true;
+        } else {
+          setError(getErrorMessage(result.error));
+          return false;
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [deleteVerseHook, findVerse]
+  );
+
+  const bulkDeleteVerse = useCallback(
+    async (ids: number[]) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await bulkDeleteVerseHook(ids);
+        if (result.success) {
+          await findVerse();
+          return true;
+        } else {
+          setError(getErrorMessage(result.error));
+          return false;
+        }
+      } catch (err) {
+        setError(getErrorMessage(err));
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [bulkDeleteVerseHook, findVerse]
+  );
 
   return {
     isLoading,

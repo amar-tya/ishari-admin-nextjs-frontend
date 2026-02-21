@@ -2,14 +2,18 @@ import {
   BulkDeleteChapterUseCase,
   CreateBookUseCase,
   CreateChapterUseCase,
+  CreateVerseUseCase,
   DeleteBookUseCase,
   DeleteChapterUseCase,
+  DeleteVerseUseCase,
+  DeleteBulkVerseUseCase,
   FindChapterUseCase,
   FindVerseUseCase,
   GetAllBooksUseCase,
   LoginUseCase,
   UpdateBookUseCase,
   UpdateChapterUseCase,
+  UpdateVerseUseCase,
 } from '@/application/usecases';
 import { IBookRepository, IVerseRepositoryPort } from '@/application/ports';
 import {
@@ -66,6 +70,10 @@ const bulkDeleteChapterUseCase = new BulkDeleteChapterUseCase(
 
 // Use Cases - Verse
 const findVerseUseCase = new FindVerseUseCase(verseRepository);
+const createVerseUseCase = new CreateVerseUseCase(verseRepository);
+const updateVerseUseCase = new UpdateVerseUseCase(verseRepository);
+const deleteVerseUseCase = new DeleteVerseUseCase(verseRepository);
+const deleteBulkVerseUseCase = new DeleteBulkVerseUseCase(verseRepository);
 
 /**
  * Container exports
@@ -90,6 +98,10 @@ export const container = {
 
   // Use Cases - Verse
   findVerseUseCase,
+  createVerseUseCase,
+  updateVerseUseCase,
+  deleteVerseUseCase,
+  deleteBulkVerseUseCase,
 
   // Services
   authService,

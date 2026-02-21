@@ -103,7 +103,7 @@ export const VerseList: React.FC<VerseListProps> = ({
                   {/* Chapter */}
                   <td className="py-4 px-[clamp(1rem,1.5vw,1.5rem)]">
                     <div className="font-medium text-[var(--color-text-primary)] text-[clamp(0.9rem,1.1vw,1.05rem)]">
-                      {verse.chapterId}
+                      {verse.chapter.title}
                     </div>
                   </td>
 
@@ -121,8 +121,8 @@ export const VerseList: React.FC<VerseListProps> = ({
 
                   {/* Transliteration */}
                   <td className="py-4 px-[clamp(1rem,1.5vw,1.5rem)]">
-                    <div className="text-[var(--color-text-secondary)] italic text-[clamp(0.875rem,1vw,1rem)]">
-                      {verse.transliterationText}
+                    <div className="text-sm font-medium text-text-primary line-clamp-2">
+                      {verse.transliteration}
                     </div>
                   </td>
 

@@ -9,7 +9,7 @@ export interface VerseFormData {
   chapterId: string;
   verseNumber: string;
   arabicText: string;
-  transliterationText: string;
+  transliteration: string;
 }
 
 interface VerseFormProps {
@@ -27,7 +27,7 @@ function entityToFormData(entity: VerseEntity): VerseFormData {
     chapterId: entity.chapterId ? entity.chapterId.toString() : '',
     verseNumber: entity.verseNumber ? entity.verseNumber.toString() : '',
     arabicText: entity.arabicText || '',
-    transliterationText: entity.transliterationText || '',
+    transliteration: entity.transliteration || '',
   };
 }
 
@@ -35,7 +35,7 @@ const INITIAL_STATE: VerseFormData = {
   chapterId: '',
   verseNumber: '',
   arabicText: '',
-  transliterationText: '',
+  transliteration: '',
 };
 
 const VerseFormInternal: React.FC<{
@@ -79,14 +79,14 @@ const VerseFormInternal: React.FC<{
         chapterId: Number(formData.chapterId),
         verseNumber: Number(formData.verseNumber),
         arabicText: formData.arabicText,
-        transliterationText: formData.transliterationText.trim() || undefined,
+        transliteration: formData.transliteration.trim() || undefined,
       } as VerseUpdateRequest;
     } else {
       submitData = {
         chapterId: Number(formData.chapterId),
         verseNumber: Number(formData.verseNumber),
         arabicText: formData.arabicText,
-        transliterationText: formData.transliterationText.trim() || undefined,
+        transliteration: formData.transliteration.trim() || undefined,
       } as VerseCreateRequest;
     }
 
@@ -159,11 +159,11 @@ const VerseFormInternal: React.FC<{
 
       <TextArea
         label="Transliteration"
-        name="transliterationText"
+        name="transliteration"
         placeholder="Masukkan transliterasi..."
-        value={formData.transliterationText}
+        value={formData.transliteration}
         onChange={handleChange}
-        error={errors.transliterationText}
+        error={errors.transliteration}
         disabled={isLoading}
         rows={3}
       />

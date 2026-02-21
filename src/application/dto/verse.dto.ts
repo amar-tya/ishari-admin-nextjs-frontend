@@ -7,7 +7,7 @@ export interface VerseRequest {
   search?: string;
   chapterId?: number;
   arabicText?: string;
-  transliterationText?: string;
+  transliteration?: string;
 }
 
 export interface VerseResponse {
@@ -19,7 +19,7 @@ export interface VerseCreateRequest {
   chapterId: number;
   verseNumber: number;
   arabicText: string;
-  transliterationText?: string;
+  transliteration?: string;
 }
 
 export interface VerseUpdateRequest {
@@ -27,5 +27,5 @@ export interface VerseUpdateRequest {
   chapterId?: number;
   verseNumber?: number;
   arabicText?: string;
-  transliterationText?: string;
+  transliteration?: string;
 }

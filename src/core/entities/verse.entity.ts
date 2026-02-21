@@ -1,9 +1,12 @@
+import { ChapterEntity } from './chapter.entity';
+
 export interface VerseEntity {
   id: number;
   chapterId: number;
+  chapter: ChapterEntity;
   verseNumber: number;
   arabicText: string;
-  transliterationText: string;
+  transliteration: string;
   createdAt: string;
   updatedAt: string;
 }

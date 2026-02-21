@@ -1,7 +1,15 @@
 import { IVerseRepositoryPort } from '@/application/ports';
-import { failure, Result, success } from '@/core/types';
-import { ListVerseApiResponse } from '../models';
-import { VerseRequest } from '@/application/dto/verse.dto';
+import { ApiSuccessResponse, failure, Result, success } from '@/core/types';
+import {
+  CreateVerseApiResponse,
+  ListVerseApiResponse,
+  UpdateVerseApiResponse,
+} from '../models';
+import {
+  VerseCreateRequest,
+  VerseUpdateRequest,
+  VerseRequest,
+} from '@/application/dto/verse.dto';
 import { HttpClient } from '@/infrastructure/http';
 import { VerseEntity } from '@/core/entities';
 import { PaginationResponse } from '@/application';
@@ -36,5 +44,58 @@ export class VerseRepository implements IVerseRepositoryPort {
     const resultData = VerseMapper.toResponse(response.data.data);
 
     return success(resultData);
+  }
+
+  async create(request: VerseCreateRequest): Promise<Result<VerseEntity>> {
+    const apiRequest = VerseMapper.toCreateRequest(request);
+    const result = await this.httpClient.post<
+      ApiSuccessResponse<CreateVerseApiResponse>
+    >(`/verses`, apiRequest);
+
+    if (!result.success) {
+      return failure(result.error);
+    }
+
+    const resultData = VerseMapper.toDomain(result.data.data.data);
+    return success(resultData);
+  }
+
+  async update(request: VerseUpdateRequest): Promise<Result<VerseEntity>> {
+    const apiRequest = VerseMapper.toUpdateRequest(request);
+    const result = await this.httpClient.put<
+      ApiSuccessResponse<UpdateVerseApiResponse>
+    >(`/verses/${request.verseId}`, apiRequest);
+
+    if (!result.success) {
+      return failure(result.error);
+    }
+
+    const resultData = VerseMapper.toDomain(result.data.data.data);
+    return success(resultData);
+  }
+
+  async delete(id: number): Promise<Result<boolean>> {
+    const result = await this.httpClient.delete<ApiSuccessResponse<void>>(
+      `/verses/${id}`
+    );
+
+    if (!result.success) {
+      return failure(result.error);
+    }
+
+    return success(true);
+  }
+
+  async bulkDelete(ids: number[]): Promise<Result<boolean>> {
+    const result = await this.httpClient.post<ApiSuccessResponse<void>>(
+      `/verses/bulk-delete`,
+      { ids }
+    );
+
+    if (!result.success) {
+      return failure(result.error);
+    }
+
+    return success(true);
   }
 }
