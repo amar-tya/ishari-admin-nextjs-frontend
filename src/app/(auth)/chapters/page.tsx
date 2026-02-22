@@ -36,6 +36,15 @@ export default function ChapterPage() {
     ChapterEntity | undefined
   >(undefined);
   const [selectedChapterIds, setSelectedChapterIds] = useState<number[]>([]);
+  const [filterCriteria, setFilterCriteria] = useState<{
+    bookId: number | null;
+    chapterTitle: string | null;
+    category: string | null;
+  }>({
+    bookId: null,
+    chapterTitle: null,
+    category: null,
+  });
 
   useEffect(() => {
     findChapter();
@@ -80,8 +89,19 @@ export default function ChapterPage() {
     setSearch(query);
   };
 
-  const handleFilter = () => {
-    console.log('Filter clicked');
+  const handleFilterApply = (criteria: {
+    bookId: number | null;
+    chapterTitle: string | null;
+    category: string | null;
+  }) => {
+    setFilterCriteria(criteria);
+    findChapter({
+      page: 1,
+      limit: 10,
+      search: criteria.chapterTitle || search || undefined,
+      bookId: criteria.bookId || undefined,
+      category: criteria.category || undefined,
+    });
   };
 
   const handleNewChapter = () => {
@@ -194,9 +214,11 @@ export default function ChapterPage() {
       <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
         <ChapterToolbar
           onSearch={handleSearch}
-          onFilterClick={handleFilter}
+          onFilterApply={handleFilterApply}
           onNewChapterClick={handleNewChapter}
           onBulkDeleteClick={handleBulkDelete}
+          books={bookList?.data || []}
+          initialCriteria={filterCriteria}
         />
 
         {/* Loading State */}
