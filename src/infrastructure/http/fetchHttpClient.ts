@@ -28,9 +28,9 @@ interface ApiErrorResponse {
  * Dengan built-in error handling, timeout, dan interceptors
  */
 export class FetchHttpClient implements HttpClient {
-  private baseURL: string;
-  private timeout: number;
-  private defaultHeaders: Record<string, string>;
+  private readonly baseURL: string;
+  private readonly timeout: number;
+  private readonly defaultHeaders: Record<string, string>;
 
   constructor(config: HttpClientConfig = {}) {
     this.baseURL = config.baseURL ?? '';
