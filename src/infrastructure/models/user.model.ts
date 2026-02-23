@@ -8,6 +8,7 @@ export interface UserApiResponse {
   username: string;
   email: string;
   is_active: boolean;
+  role: string;
   last_login_at: string;
   created_at: string;
   updated_at: string;
@@ -25,6 +26,7 @@ export interface UserCreateApiResponse {
   username: string;
   email: string;
   password: string;
+  role: string;
 }
 
 export interface UserUpdateApiResponse {
@@ -32,4 +34,5 @@ export interface UserUpdateApiResponse {
   username?: string;
   email?: string;
   is_active?: boolean;
+  role?: string;
 }

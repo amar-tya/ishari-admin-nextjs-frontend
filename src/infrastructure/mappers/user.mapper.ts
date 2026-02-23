@@ -19,6 +19,7 @@ export class UserMapper {
       username: apiData.username,
       email: apiData.email,
       isActive: apiData.is_active,
+      role: apiData.role,
       lastLoginAt: apiData.last_login_at,
       createdAt: apiData.created_at,
       updatedAt: apiData.updated_at,
@@ -44,6 +45,7 @@ export class UserMapper {
       username: request.username,
       email: request.email,
       password: request.password,
+      role: request.role,
     };
   }
 
@@ -53,6 +55,7 @@ export class UserMapper {
       username: request.username,
       email: request.email,
       is_active: request.isActive,
+      role: request.role,
     };
   }
 

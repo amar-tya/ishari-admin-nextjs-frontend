@@ -3,6 +3,7 @@ export interface UserEntity {
   username: string;
   email: string;
   isActive: boolean;
+  role: string;
   lastLoginAt: string;
   createdAt: string;
   updatedAt: string;

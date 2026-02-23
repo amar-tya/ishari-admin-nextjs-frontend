@@ -9,6 +9,7 @@ export interface UserFormData {
   username: string;
   email: string;
   password?: string;
+  role: string;
   isActive: string;
 }
 
@@ -27,6 +28,7 @@ function entityToFormData(entity: UserEntity): UserFormData {
     username: entity.username || '',
     email: entity.email || '',
     password: '',
+    role: entity.role || 'user',
     isActive: entity.isActive ? 'true' : 'false',
   };
 }
@@ -35,6 +37,7 @@ const INITIAL_STATE: UserFormData = {
   username: '',
   email: '',
   password: '',
+  role: 'user',
   isActive: 'true',
 };
 
@@ -77,6 +80,7 @@ const UserFormInternal: React.FC<{
         id: initialData.id,
         username: formData.username,
         email: formData.email,
+        role: formData.role,
         isActive: formData.isActive === 'true',
       } as UserUpdateRequest;
     } else {
@@ -84,6 +88,7 @@ const UserFormInternal: React.FC<{
         username: formData.username,
         email: formData.email,
         password: formData.password!,
+        role: formData.role,
       } as UserCreateRequest;
     }
 
@@ -153,6 +158,18 @@ const UserFormInternal: React.FC<{
           disabled={isLoading}
         />
       )}
+
+      <Select
+        label="Akses (Role)"
+        name="role"
+        value={formData.role}
+        onChange={handleChange}
+        disabled={isLoading}
+      >
+        <option value="super_admin">Super Admin</option>
+        <option value="admin_content">Admin Content</option>
+        <option value="user">User</option>
+      </Select>
 
       {mode === 'edit' && (
         <Select

@@ -16,6 +16,7 @@ export interface UserCreateRequest {
   username: string;
   email: string;
   password: string;
+  role: string;
 }
 
 export interface UserUpdateRequest {
@@ -23,4 +24,5 @@ export interface UserUpdateRequest {
   username?: string;
   email?: string;
   isActive?: boolean;
+  role?: string;
 }

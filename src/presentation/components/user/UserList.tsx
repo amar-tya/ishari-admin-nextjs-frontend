@@ -60,6 +60,9 @@ export const UserList: React.FC<UserListProps> = ({
                 Email
               </th>
               <th className="py-4 px-[clamp(1rem,1.5vw,1.5rem)] text-[0.75rem] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider w-32 border-none">
+                Akses
+              </th>
+              <th className="py-4 px-[clamp(1rem,1.5vw,1.5rem)] text-[0.75rem] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider w-32 border-none">
                 Status
               </th>
               <th className="py-4 px-[clamp(1rem,1.5vw,1.5rem)] text-[0.75rem] font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider w-32">
@@ -74,7 +77,7 @@ export const UserList: React.FC<UserListProps> = ({
             {users.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="py-12 text-center text-[var(--color-text-muted)] text-[0.875rem]"
                 >
                   Tidak ada data yang ditampilkan
@@ -110,6 +113,11 @@ export const UserList: React.FC<UserListProps> = ({
                   {/* Email */}
                   <td className="py-4 px-[clamp(1rem,1.5vw,1.5rem)] text-[var(--color-text-secondary)] text-[0.875rem]">
                     {user.email}
+                  </td>
+
+                  {/* Akses / Role */}
+                  <td className="py-4 px-[clamp(1rem,1.5vw,1.5rem)] text-[var(--color-text-secondary)] text-[0.875rem]">
+                    <span className="capitalize">{user.role}</span>
                   </td>
 
                   {/* Status */}
