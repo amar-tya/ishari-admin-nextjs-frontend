@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card } from '../base';
 
 interface StatCardProps {
@@ -8,6 +9,7 @@ interface StatCardProps {
   label: string;
   labelColor?: string;
   value: string | number;
+  href?: string;
   className?: string;
 }
 
@@ -18,10 +20,18 @@ export const StatCard: React.FC<StatCardProps> = ({
   label,
   labelColor = 'text-[var(--color-primary)]',
   value,
+  href,
   className = '',
 }) => {
-  return (
-    <Card className={`flex flex-col items-center text-center ${className}`} padding="md">
+  const CardContent = (
+    <Card
+      className={`
+        flex flex-col items-center text-center transition-all duration-300
+        ${href ? 'hover:shadow-md hover:-translate-y-1 cursor-pointer' : ''}
+        ${className}
+      `}
+      padding="md"
+    >
       {/* Icon */}
       <div
         className={`
@@ -33,18 +43,28 @@ export const StatCard: React.FC<StatCardProps> = ({
           height: 'clamp(3rem, 4vw, 4rem)',
         }}
       >
-        <span className={iconColor}>
-          {icon}
-        </span>
+        <span className={iconColor}>{icon}</span>
       </div>
 
       {/* Label */}
       <p className={`text-label mb-1 ${labelColor}`}>{label}</p>
 
       {/* Value */}
-      <p className="text-stat">{typeof value === 'number' ? value.toLocaleString('en-US') : value}</p>
+      <p className="text-stat">
+        {typeof value === 'number' ? value.toLocaleString('en-US') : value}
+      </p>
     </Card>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block no-underline">
+        {CardContent}
+      </Link>
+    );
+  }
+
+  return CardContent;
 };
 
 export default StatCard;

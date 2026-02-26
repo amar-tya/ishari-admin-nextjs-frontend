@@ -34,6 +34,7 @@ import {
   DeleteHadiUseCase,
   FindHadiUseCase,
   ListHadiUseCase,
+  GetDashboardStatsUseCase,
 } from '@/application/usecases';
 import {
   IBookRepository,
@@ -42,6 +43,7 @@ import {
   IUserRepository,
   IBookmarkRepositoryPort,
   IHadiRepository,
+  IStatsRepository,
 } from '@/application/ports';
 import {
   AuthRepository,
@@ -51,6 +53,7 @@ import {
   UserRepository,
   BookmarkRepository,
   HadiRepository,
+  StatsRepository,
 } from '@/infrastructure/repositories';
 import { AuthService } from '@/infrastructure/services';
 import { createHttpClient } from '@/infrastructure/http';
@@ -87,6 +90,7 @@ const bookmarkRepository: IBookmarkRepositoryPort = new BookmarkRepository(
   httpClient
 );
 const hadiRepository: IHadiRepository = new HadiRepository(httpClient);
+const statsRepository: IStatsRepository = new StatsRepository(httpClient);
 
 // Use Cases - Auth
 const loginUseCase = new LoginUseCase(authRepository, authService);
@@ -154,6 +158,9 @@ const deleteHadiUseCase = new DeleteHadiUseCase(hadiRepository);
 const findHadiUseCase = new FindHadiUseCase(hadiRepository);
 const listHadiUseCase = new ListHadiUseCase(hadiRepository);
 
+// Use Cases - Stats
+const getDashboardStatsUseCase = new GetDashboardStatsUseCase(statsRepository);
+
 /**
  * Container exports
  */
@@ -209,6 +216,9 @@ export const container = {
   deleteHadiUseCase,
   findHadiUseCase,
   listHadiUseCase,
+
+  // Use Cases - Stats
+  getDashboardStatsUseCase,
 
   // Services
   authService,

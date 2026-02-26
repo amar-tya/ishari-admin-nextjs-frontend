@@ -6,3 +6,4 @@ export * from './translation';
 export * from './user';
 export * from './bookmark';
 export * from './hadi';
+export * from './stats';

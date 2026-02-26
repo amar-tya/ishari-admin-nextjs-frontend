@@ -12,3 +12,4 @@ export * from './useChapter';
 export * from './useVerse';
 export * from './useTranslation';
 export * from './useHadi';
+export * from './useStats';

@@ -1,11 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/presentation/components/base';
 import {
   UsersIcon,
   ChaptersIcon,
   VersesIcon,
-  SearchIcon,
   UserPlusIcon,
   BookPlusIcon,
   TranslationsIcon,
@@ -20,49 +20,34 @@ import {
   PendingApprovalCard,
   RecentUpdatesTable,
 } from '@/presentation/components/dashboard';
-import { useUser } from '@/presentation/hooks';
-
-// Dummy data - with colors matching the design
-const statsData = [
-  { 
-    icon: <UsersIcon size={28} />, 
-    label: 'Total Users', 
-    value: 1240,
-    iconBgColor: 'bg-[#EAF7ED]',
-    iconColor: 'text-[#3AAF50]',
-    labelColor: 'text-[#3AAF50]',
-  },
-  { 
-    icon: <ChaptersIcon size={28} />, 
-    label: 'Chapters', 
-    value: 543,
-    iconBgColor: 'bg-[#DBEAFE]',
-    iconColor: 'text-[#2563EB]',
-    labelColor: 'text-[#2563EB]',
-  },
-  { 
-    icon: <VersesIcon size={28} />, 
-    label: 'Verses', 
-    value: 89,
-    iconBgColor: 'bg-[#FEF3C7]',
-    iconColor: 'text-[#D97706]',
-    labelColor: 'text-[#D97706]',
-  },
-  { 
-    icon: <SearchIcon size={28} />, 
-    label: 'Daily Searches', 
-    value: 2304,
-    iconBgColor: 'bg-[#DBEAFE]',
-    iconColor: 'text-[#2563EB]',
-    labelColor: 'text-[#2563EB]',
-  },
-];
+import { useUser, useStats } from '@/presentation/hooks';
+import { DashboardStatsEntity } from '@/core/entities';
 
 const quickActions = [
-  { icon: <UserPlusIcon size={24} />, label: 'Add User', color: 'bg-[#EAF7ED]', iconColor: 'text-[#3AAF50]' },
-  { icon: <BookPlusIcon size={24} />, label: 'Add Book', color: 'bg-[#FEF3C7]', iconColor: 'text-[#D97706]' },
-  { icon: <TranslationsIcon size={24} />, label: 'New Translation', color: 'bg-[#DBEAFE]', iconColor: 'text-[#2563EB]' },
-  { icon: <SettingsIcon size={24} />, label: 'Manage Roles', color: 'bg-[#EAF7ED]', iconColor: 'text-[#3AAF50]' },
+  {
+    icon: <UserPlusIcon size={24} />,
+    label: 'Add User',
+    color: 'bg-[#EAF7ED]',
+    iconColor: 'text-[#3AAF50]',
+  },
+  {
+    icon: <BookPlusIcon size={24} />,
+    label: 'Add Book',
+    color: 'bg-[#FEF3C7]',
+    iconColor: 'text-[#D97706]',
+  },
+  {
+    icon: <TranslationsIcon size={24} />,
+    label: 'New Translation',
+    color: 'bg-[#DBEAFE]',
+    iconColor: 'text-[#2563EB]',
+  },
+  {
+    icon: <SettingsIcon size={24} />,
+    label: 'Manage Roles',
+    color: 'bg-[#EAF7ED]',
+    iconColor: 'text-[#3AAF50]',
+  },
 ];
 
 const notificationsData = [
@@ -97,15 +82,88 @@ const recentUpdatesData = [
   },
 ];
 
+function buildStatsCards(stats: DashboardStatsEntity) {
+  return [
+    {
+      icon: <UsersIcon size={28} />,
+      label: 'Total Users',
+      value: stats.totalUsers,
+      href: '/users',
+      iconBgColor: 'bg-[#EAF7ED]',
+      iconColor: 'text-[#3AAF50]',
+      labelColor: 'text-[#3AAF50]',
+    },
+    {
+      icon: <ChaptersIcon size={28} />,
+      label: 'Chapters',
+      value: stats.totalChapter,
+      href: '/chapters',
+      iconBgColor: 'bg-[#DBEAFE]',
+      iconColor: 'text-[#2563EB]',
+      labelColor: 'text-[#2563EB]',
+    },
+    {
+      icon: <VersesIcon size={28} />,
+      label: 'Verses',
+      value: stats.totalVerses,
+      href: '/verses',
+      iconBgColor: 'bg-[#FEF3C7]',
+      iconColor: 'text-[#D97706]',
+      labelColor: 'text-[#D97706]',
+    },
+    {
+      icon: <ChaptersIcon size={28} />,
+      label: 'Hadis',
+      value: stats.totalHadis,
+      href: '/hadi',
+      iconBgColor: 'bg-[#EDE9FE]',
+      iconColor: 'text-[#7C3AED]',
+      labelColor: 'text-[#7C3AED]',
+    },
+    {
+      icon: <VersesIcon size={28} />,
+      label: 'Verse Media',
+      value: stats.totalVerseMedia,
+      href: '/verse-media',
+      iconBgColor: 'bg-[#FEE2E2]',
+      iconColor: 'text-[#DC2626]',
+      labelColor: 'text-[#DC2626]',
+    },
+  ];
+}
+
 export default function DashboardPage() {
   const user = useUser();
+  const { getDashboardStats } = useStats();
+
+  const [stats, setStats] = useState<DashboardStatsEntity | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setIsLoadingStats(true);
+      try {
+        const result = await getDashboardStats();
+        if (result.success) {
+          setStats(result.data);
+        }
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+    fetchStats();
+  }, [getDashboardStats]);
+
+  const statsCards = stats ? buildStatsCards(stats) : [];
 
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-heading capitalize">Welcome back, {user?.username} 👋</h1>
+          <h1 className="text-heading capitalize">
+            Welcome back, {user?.username} 👋
+          </h1>
           <p className="text-description mt-1">
             Here&apos;s what&apos;s happening with your master data today.
           </p>
@@ -124,20 +182,30 @@ export default function DashboardPage() {
       <div
         className="grid gap-4"
         style={{
-          gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(140px, 15vw, 200px), 1fr))',
+          gridTemplateColumns:
+            'repeat(auto-fit, minmax(clamp(140px, 15vw, 200px), 1fr))',
         }}
       >
-        {statsData.map((stat, index) => (
-          <StatCard
-            key={index}
-            icon={stat.icon}
-            label={stat.label}
-            value={stat.value}
-            iconBgColor={stat.iconBgColor}
-            iconColor={stat.iconColor}
-            labelColor={stat.labelColor}
-          />
-        ))}
+        {isLoadingStats
+          ? // Skeleton loading placeholders
+            Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse rounded-xl bg-gray-100 h-28"
+              />
+            ))
+          : statsCards.map((stat, index) => (
+              <StatCard
+                key={index}
+                icon={stat.icon}
+                label={stat.label}
+                value={stat.value}
+                href={stat.href}
+                iconBgColor={stat.iconBgColor}
+                iconColor={stat.iconColor}
+                labelColor={stat.labelColor}
+              />
+            ))}
       </div>
 
       {/* Main Content Grid */}
@@ -155,7 +223,8 @@ export default function DashboardPage() {
             <div
               className="grid gap-4"
               style={{
-                gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(100px, 12vw, 140px), 1fr))',
+                gridTemplateColumns:
+                  'repeat(auto-fit, minmax(clamp(100px, 12vw, 140px), 1fr))',
               }}
             >
               {quickActions.map((action, index) => (
