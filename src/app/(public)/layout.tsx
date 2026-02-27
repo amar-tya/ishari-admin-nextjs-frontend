@@ -23,8 +23,8 @@ export default function PublicLayout({
             </div>
             <nav className="hidden md:flex items-center gap-8">
               <Link
-                className="text-[#1e293b] text-sm font-semibold border-b-2 border-[#51c878] pb-0.5"
-                href="#"
+                className="text-[#475569] hover:text-[#51c878] transition-colors text-sm font-medium"
+                href="/muhud"
               >
                 Muhud
               </Link>
