@@ -1,0 +1,67 @@
+'use client';
+
+import React from 'react';
+import {
+  PlayIcon,
+  SparklesIcon,
+  PlayCircleIcon,
+} from '@/presentation/components/base/icons';
+import { ChapterEntity } from '@/core/entities';
+
+interface PublicSidebarProps {
+  chapter: ChapterEntity | null;
+}
+
+export function PublicSidebar({ chapter }: PublicSidebarProps) {
+  return (
+    <aside className="hidden lg:block lg:col-span-3 space-y-6">
+      <div className="sticky top-28">
+        <div className="bg-white rounded-2xl p-6 shadow-[4px_4px_10px_rgba(81,200,120,0.1),-4px_-4px_10px_rgba(255,255,255,0.8)] border border-slate-50 mb-6">
+          <span className="inline-flex items-center justify-center px-3 py-1 bg-[#e6f7ec] text-[#3da35f] text-xs font-bold rounded-full mb-3">
+            {chapter?.category || 'Meccan'}
+          </span>
+          <h1 className="text-3xl font-bold text-[#1e293b] mb-1">
+            {chapter?.title || 'Unknown Surah'}
+          </h1>
+          <p className="text-[#475569] text-sm mb-4">
+            {chapter?.title || 'Unknown'} • {chapter?.totalVerses || 0} Verses
+          </p>
+          <button className="w-full h-12 bg-[#51c878] hover:bg-[#3da35f] text-white rounded-xl shadow-lg shadow-[#51c878]/30 flex items-center justify-center gap-2 transition-all font-semibold active:scale-95">
+            <PlayIcon size={24} />
+            Play Full Surah
+          </button>
+        </div>
+
+        {/* Smart Suggestion */}
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 size-24 bg-[#51c878]/20 rounded-full blur-2xl group-hover:bg-[#51c878]/30 transition-all"></div>
+          <div className="flex items-center gap-2 mb-3 text-[#3da35f]">
+            <SparklesIcon size={18} className="text-[#51c878]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#51c878]">
+              Smart Suggest
+            </span>
+          </div>
+          <h3 className="font-bold text-lg mb-2">Evening Recitation</h3>
+          <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+            Based on the time (8:00 PM), we suggest a calm, slower recitation
+            style.
+          </p>
+          <div className="flex items-center gap-3 bg-white/10 rounded-lg p-2 backdrop-blur-sm border border-white/5 cursor-pointer hover:bg-white/20 transition-all">
+            <div
+              className="size-10 rounded-full bg-cover bg-center"
+              style={{
+                backgroundImage:
+                  "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAjPGDdukRwTIR_LXbXcCY3hQbNUidml59_ihoVYkzz_IKogQ88eDdyzQ_d6uBP7b4UW9vO-q0b9CQ5LAKsGcnXnIKSjjMF2BFc-r5Gv3L1seqwgFQNgQ0XgIYVvF5PK2DHYVY2UdR5FwJeFEISn2AuMVX-v_S8dYDSNeYVAHLJ_5BpwaxpjdsMkktqbcD-r1OOZ3jH8_7mxvd8Aqp92rT8hUe74OGRimxswqbZYdfkTtWjfoM5ZThGNgGS-5axlaSexvW2tC4NyaY')",
+              }}
+            ></div>
+            <div>
+              <p className="text-sm font-semibold">Mishary Alafasy</p>
+              <p className="text-xs text-slate-400">Calm Mode</p>
+            </div>
+            <PlayCircleIcon size={24} className="ml-auto text-[#51c878]" />
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}

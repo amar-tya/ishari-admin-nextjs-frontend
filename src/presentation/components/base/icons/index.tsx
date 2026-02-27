@@ -944,3 +944,247 @@ export const FilterIcon: React.FC<IconProps> = ({
     />
   </svg>
 );
+
+// Play icon
+export const PlayIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);
+
+// Sparkles icon
+export const SparklesIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5zm7 11l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Play Circle icon
+export const PlayCircleIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+    <path d="M10 8l6 4-6 4V8z" fill="currentColor" />
+  </svg>
+);
+
+// Share icon
+export const ShareIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="18" cy="5" r="3" stroke="currentColor" strokeWidth="2" />
+    <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+    <circle cx="18" cy="19" r="3" stroke="currentColor" strokeWidth="2" />
+    <line
+      x1="8.59"
+      y1="13.51"
+      x2="15.42"
+      y2="17.49"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <line
+      x1="15.41"
+      y1="6.51"
+      x2="8.59"
+      y2="10.49"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+  </svg>
+);
+
+// Mic icon
+export const MicIcon: React.FC<IconProps> = ({ className = '', size = 20 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M19 10v2a7 7 0 0 1-14 0v-2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <line
+      x1="12"
+      y1="19"
+      x2="12"
+      y2="23"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <line
+      x1="8"
+      y1="23"
+      x2="16"
+      y2="23"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Graphic Eq icon
+export const GraphicEqIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M4 14v-4m4 8V6m4 13V5m4 9v-4m4 6v-8"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Skip Back icon
+export const SkipBackIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+  </svg>
+);
+
+// Pause icon
+export const PauseIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+  </svg>
+);
+
+// Skip Forward icon
+export const SkipForwardIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+  </svg>
+);
+
+// Volume Up icon
+export const VolumeUpIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 20,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M11 5L6 9H2v6h4l5 4V5z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
