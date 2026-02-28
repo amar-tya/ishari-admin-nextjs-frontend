@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useVerse, useChapter } from '@/presentation/hooks';
 import { VerseEntity, ChapterEntity } from '@/core/entities';
-import { PublicSidebar } from '@/presentation/components/public/PublicSidebar';
-import { VerseItem } from '@/presentation/components/public/VerseItem';
-import { PublicAudioPlayer } from '@/presentation/components/public/PublicAudioPlayer';
+import { PublicSidebar } from './PublicSidebar';
+import { VerseItem } from './VerseItem';
+import { PublicAudioPlayer } from './PublicAudioPlayer';
 import {
   PlayIcon,
   ChevronLeftIcon,
