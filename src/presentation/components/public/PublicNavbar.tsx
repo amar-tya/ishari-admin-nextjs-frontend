@@ -47,7 +47,7 @@ export function PublicNavbar() {
                   ? 'text-[#1e293b] font-semibold border-b-2 border-[#51c878] pb-0.5'
                   : 'text-[#475569] hover:text-[#51c878]'
               }`}
-              href="#"
+              href="/kitab"
             >
               Kitab
             </Link>
