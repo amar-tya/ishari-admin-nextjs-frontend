@@ -33,6 +33,16 @@ export function PublicNavbar() {
             </Link>
             <Link
               className={`text-sm font-medium transition-colors ${
+                pathname === '/diba'
+                  ? 'text-[#1e293b] font-semibold border-b-2 border-[#51c878] pb-0.5'
+                  : 'text-[#475569] hover:text-[#51c878]'
+              }`}
+              href="/diba"
+            >
+              Diba
+            </Link>
+            <Link
+              className={`text-sm font-medium transition-colors ${
                 pathname === '/kitab'
                   ? 'text-[#1e293b] font-semibold border-b-2 border-[#51c878] pb-0.5'
                   : 'text-[#475569] hover:text-[#51c878]'

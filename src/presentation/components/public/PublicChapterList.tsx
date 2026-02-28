@@ -11,7 +11,17 @@ import {
 } from '@/presentation/components/base/icons';
 import Link from 'next/link';
 
-export function MuhudList() {
+export interface PublicChapterListProps {
+  title: string;
+  category: string;
+  description: string;
+}
+
+export function PublicChapterList({
+  title,
+  category,
+  description,
+}: PublicChapterListProps) {
   const { findChapter } = useChapter();
   const [chapters, setChapters] = useState<ChapterEntity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,32 +35,30 @@ export function MuhudList() {
         const res = await findChapter({
           page: 1,
           limit: 100, // Reasonable limit to get all relevant chapters
-          category: 'Diwan,Muradah,Diba',
+          category: category,
         });
 
         if (res.success && res.data.data) {
           setChapters(res.data.data);
         }
       } catch (err) {
-        console.error('Error fetching muhud chapters:', err);
+        console.error('Error fetching chapters:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchChapters();
-  }, [findChapter]);
+  }, [findChapter, category]);
 
   return (
     <div className="flex-1 w-full max-w-[1200px] mx-auto p-6 pb-20">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black text-[#0f172a] mb-2 tracking-tight">
-            Muhud
+            {title}
           </h1>
-          <p className="text-slate-500 font-medium">
-            Daftar kitab / chapter kategori Diwan dan Muradah
-          </p>
+          <p className="text-slate-500 font-medium">{description}</p>
         </div>
 
         <div className="flex bg-slate-100/50 backdrop-blur-sm p-1.5 rounded-2xl border border-slate-200/60 shadow-inner w-fit">

@@ -1,7 +1,7 @@
-import React, { Suspense } from 'react';
 import { PublicChapterList } from '@/presentation/components/public';
+import { Suspense } from 'react';
 
-export default function MuhudPage() {
+export default function DibaPage() {
   return (
     <Suspense
       fallback={
@@ -11,9 +11,9 @@ export default function MuhudPage() {
       }
     >
       <PublicChapterList
-        title="Muhud"
-        category="Diwan,Muradah"
-        description="Daftar kitab / chapter kategori Diwan dan Muradah"
+        title="Diba"
+        category="Diba"
+        description="Daftar kitab / chapter kategori Diba"
       />
     </Suspense>
   );
