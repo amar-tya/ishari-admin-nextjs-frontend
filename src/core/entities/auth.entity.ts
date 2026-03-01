@@ -2,7 +2,7 @@
  * User Entity
  */
 export interface User {
-  id: number;
+  id: string; // Supabase UUID format
   username: string;
   email: string;
   is_active: boolean;

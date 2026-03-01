@@ -17,6 +17,7 @@ export interface LoginViewModelActions {
   setPassword: (value: string) => void;
   toggleShowPassword: () => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
+  handleGoogleLogin: () => Promise<void>;
 }
 
 /**

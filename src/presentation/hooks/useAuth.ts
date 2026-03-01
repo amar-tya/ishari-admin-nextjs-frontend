@@ -1,19 +1,17 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { container } from "@/di";
-import { LoginCredentials, AuthResponse } from "@/core/entities";
-import { Result } from "@/core/types";
-import { getErrorMessage } from "@/shared/utils";
+import { useCallback } from 'react';
+import { container } from '@/di';
+import { LoginCredentials, AuthResponse } from '@/core/entities';
+import { Result } from '@/core/types';
 
 /**
  * Auth Hook Return Type
  */
 export interface UseAuthReturn {
   login: (credentials: LoginCredentials) => Promise<Result<AuthResponse>>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-  refreshToken: () => Promise<Result<AuthResponse>>;
   isAuthenticated: () => boolean;
   getAccessToken: () => string | null;
 }
@@ -22,13 +20,12 @@ export interface UseAuthReturn {
  * useAuth Hook
  *
  * Reusable hook untuk auth operations:
- * - Login (LoginPage, re-login modal)
- * - Logout (Navbar, Settings)
- * - Refresh token (auto-refresh)
- * - Check session (protected routes)
+ * - Login email/password via Supabase
+ * - Login dengan Google OAuth via Supabase
+ * - Logout
+ * - Check session
  */
 export function useAuth(): UseAuthReturn {
-  const router = useRouter();
   const { authService, authRepository, loginUseCase } = container;
 
   const login = useCallback(
@@ -38,15 +35,21 @@ export function useAuth(): UseAuthReturn {
     [loginUseCase]
   );
 
+  const loginWithGoogle = useCallback(async () => {
+    await authRepository.loginWithGoogle();
+    // Supabase akan redirect browser ke Google secara otomatis
+  }, [authRepository]);
+
   const logout = useCallback(async () => {
     try {
       await authRepository.logout();
     } catch {
-      // Ignore API errors, still clear local tokens
+      // Ignore API errors
     }
     authService.clearTokens();
-    router.push("/login");
-  }, [authService, authRepository, router]);
+    // Hard redirect untuk clear seluruh state Supabase session
+    window.location.href = '/login';
+  }, [authService, authRepository]);
 
   const isAuthenticated = useCallback(() => {
     return authService.hasValidSession();
@@ -56,32 +59,10 @@ export function useAuth(): UseAuthReturn {
     return authService.getAccessToken();
   }, [authService]);
 
-  const refreshToken = useCallback(async (): Promise<Result<AuthResponse>> => {
-    const currentRefreshToken = authService.getRefreshToken();
-
-    if (!currentRefreshToken) {
-      return {
-        success: false,
-        error: {
-          code: "UNAUTHORIZED",
-          message: "No refresh token available",
-          statusCode: 401,
-          name: "UnauthorizedError",
-        },
-      } as Result<AuthResponse>;
-    }
-
-    const result = await authRepository.refreshToken(currentRefreshToken);
-    if (result.success) {
-      authService.storeTokens(result.data);
-    }
-    return result;
-  }, [authService, authRepository]);
-
   return {
     login,
+    loginWithGoogle,
     logout,
-    refreshToken,
     isAuthenticated,
     getAccessToken,
   };

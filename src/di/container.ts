@@ -59,6 +59,7 @@ import { AuthService } from '@/infrastructure/services';
 import { createHttpClient } from '@/infrastructure/http';
 import { BookRepository } from '@/infrastructure/repositories/book.repository';
 import { IChapterRepository } from '@/application/ports/repository/chapter.repository.port';
+import { supabaseBrowserClient } from '@/infrastructure/supabase';
 
 /**
  * Dependency Injection Container
@@ -78,7 +79,7 @@ const httpClient = createHttpClient({
 const authService = new AuthService();
 
 // Repositories
-const authRepository = new AuthRepository(httpClient);
+const authRepository = new AuthRepository(supabaseBrowserClient);
 const bookRepository: IBookRepository = new BookRepository(httpClient);
 const chapterRepository: IChapterRepository = new ChapterRepository(httpClient);
 const verseRepository: IVerseRepositoryPort = new VerseRepository(httpClient);

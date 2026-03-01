@@ -1,29 +1,26 @@
-import { Result } from "@/core/types";
-import { AuthResponse, LoginCredentials } from "@/core/entities";
+import { Result } from '@/core/types';
+import { AuthResponse, LoginCredentials } from '@/core/entities';
 
 /**
  * IAuthRepository - Port untuk auth API calls
  *
  * Interface ini mendefinisikan kontrak untuk operasi auth ke backend.
- * Implementasi bisa menggunakan fetch, axios, atau library HTTP lainnya.
+ * Implementasi menggunakan Supabase Auth.
  */
 export interface IAuthRepository {
   /**
-   * Login dengan credentials
-   * @param credentials - username dan password
-   * @returns Result dengan AuthResponse jika success
+   * Login dengan email dan password via Supabase Auth
    */
   login(credentials: LoginCredentials): Promise<Result<AuthResponse>>;
 
   /**
-   * Logout - invalidate session di server
+   * Login dengan Google OAuth via Supabase
+   * Akan redirect browser ke Google consent screen
    */
-  logout(): Promise<Result<void>>;
+  loginWithGoogle(): Promise<Result<void>>;
 
   /**
-   * Refresh access token menggunakan refresh token
-   * @param refreshToken - refresh token yang valid
-   * @returns Result dengan AuthResponse baru
+   * Logout - invalidate session Supabase
    */
-  refreshToken(refreshToken: string): Promise<Result<AuthResponse>>;
+  logout(): Promise<Result<void>>;
 }

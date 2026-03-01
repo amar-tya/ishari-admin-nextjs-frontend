@@ -1,17 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/presentation/hooks";
-import { getErrorMessage } from "@/shared/utils";
-import type { LoginViewModel } from "./LoginViewModel.types";
+import { useState, useCallback } from 'react';
+import { useAuth } from '@/presentation/hooks';
+import { getErrorMessage } from '@/shared/utils';
+import type { LoginViewModel } from './LoginViewModel.types';
 
 // Re-export types
 export type {
   LoginViewModel,
   LoginViewModelState,
   LoginViewModelActions,
-} from "./LoginViewModel.types";
+} from './LoginViewModel.types';
 
 /**
  * useLoginViewModel
@@ -20,12 +19,11 @@ export type {
  * Menggunakan useAuth hook untuk login action.
  */
 export function useLoginViewModel(): LoginViewModel {
-  const router = useRouter();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
 
   // State
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +46,7 @@ export function useLoginViewModel(): LoginViewModel {
         });
 
         if (result.success) {
-          router.push("/dashboard");
+          window.location.href = '/dashboard';
         } else {
           setError(getErrorMessage(result.error));
         }
@@ -58,8 +56,20 @@ export function useLoginViewModel(): LoginViewModel {
         setIsLoading(false);
       }
     },
-    [usernameOrEmail, password, router, login]
+    [usernameOrEmail, password, login]
   );
+
+  const handleGoogleLogin = useCallback(async () => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      await loginWithGoogle();
+      // Supabase akan redirect ke Google, isLoading tetap true
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setIsLoading(false);
+    }
+  }, [loginWithGoogle]);
 
   return {
     usernameOrEmail,
@@ -71,5 +81,6 @@ export function useLoginViewModel(): LoginViewModel {
     setPassword,
     toggleShowPassword,
     handleSubmit,
+    handleGoogleLogin,
   };
 }

@@ -1,105 +1,100 @@
-import { AuthResponse, User } from "@/core/entities";
-import { IAuthService } from "@/application/ports";
-
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
-const USER_KEY = "user_data";
+import { AuthResponse, User } from '@/core/entities';
+import { IAuthService } from '@/application/ports';
+import { supabaseBrowserClient } from '@/infrastructure/supabase';
 
 /**
- * Set cookie dengan options
- */
-function setCookie(name: string, value: string, days: number = 7): void {
-  if (typeof document === "undefined") return;
-
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-
-  document.cookie = `${name}=${encodeURIComponent(
-    value
-  )};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-}
-
-/**
- * Get cookie value
- */
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-
-  const nameEQ = name + "=";
-  const cookies = document.cookie.split(";");
-
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.indexOf(nameEQ) === 0) {
-      return decodeURIComponent(cookie.substring(nameEQ.length));
-    }
-  }
-
-  return null;
-}
-
-/**
- * Delete cookie
- */
-function deleteCookie(name: string): void {
-  if (typeof document === "undefined") return;
-
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-}
-
-/**
- * AuthService - JWT/Token management implementation
+ * AuthService - Supabase Session Management
  *
- * Implementasi IAuthService menggunakan cookies untuk storage.
- * Cookies dipilih karena:
- * - Compatible dengan Next.js middleware/proxy
- * - Lebih aman dari XSS (httpOnly option available)
- * - Automatic sent dengan setiap request
+ * Menggunakan Supabase untuk session management.
+ * Token storage ditangani otomatis oleh @supabase/ssr via cookies.
  */
 export class AuthService implements IAuthService {
-  storeTokens(authResponse: AuthResponse): void {
-    setCookie(ACCESS_TOKEN_KEY, authResponse.access_token, 7); // 7 days
-    setCookie(REFRESH_TOKEN_KEY, authResponse.refresh_token, 30); // 30 days
-    // Store user data in localStorage
-    this.storeUser(authResponse.user);
-  }
-
-  private storeUser(user: User): void {
-    if (typeof localStorage === "undefined") return;
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  storeTokens(_authResponse: AuthResponse): void {
+    // Supabase mengelola session storage secara otomatis via cookies
+    // Method ini dipertahankan untuk kompatibilitas interface
   }
 
   getAccessToken(): string | null {
-    return getCookie(ACCESS_TOKEN_KEY);
+    // Supabase menyimpan session di localStorage (clientside)
+    // Gunakan getSession() untuk async, atau session dari localStorage
+    const session = supabaseBrowserClient.auth.getUser();
+    void session; // async - tidak bisa sync di sini
+
+    // Ambil dari localStorage yang dikelola Supabase
+    if (typeof localStorage !== 'undefined') {
+      const keys = Object.keys(localStorage);
+      const sessionKey = keys.find((k) => k.includes('auth-token'));
+      if (sessionKey) {
+        try {
+          const data = JSON.parse(localStorage.getItem(sessionKey) ?? '{}');
+          return data?.access_token ?? null;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
   }
 
   getRefreshToken(): string | null {
-    return getCookie(REFRESH_TOKEN_KEY);
+    if (typeof localStorage !== 'undefined') {
+      const keys = Object.keys(localStorage);
+      const sessionKey = keys.find((k) => k.includes('auth-token'));
+      if (sessionKey) {
+        try {
+          const data = JSON.parse(localStorage.getItem(sessionKey) ?? '{}');
+          return data?.refresh_token ?? null;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
   }
 
   clearTokens(): void {
-    deleteCookie(ACCESS_TOKEN_KEY);
-    deleteCookie(REFRESH_TOKEN_KEY);
-    this.clearUser();
+    // Supabase akan clear session via signOut()
+    // AuthRepository.logout() memanggil supabase.auth.signOut()
   }
 
   hasValidSession(): boolean {
-    return !!this.getAccessToken();
+    // Cek via cookie yang diset oleh Supabase SSR middleware
+    if (typeof document === 'undefined') return false;
+    return (
+      document.cookie.includes('sb-') && document.cookie.includes('-auth-token')
+    );
   }
 
   getUser(): User | null {
-    if (typeof localStorage === "undefined") return null;
-    const userData = localStorage.getItem(USER_KEY);
-    if (!userData) return null;
-    try {
-      return JSON.parse(userData) as User;
-    } catch {
-      return null;
+    if (typeof localStorage !== 'undefined') {
+      const keys = Object.keys(localStorage);
+      const sessionKey = keys.find((k) => k.includes('auth-token'));
+      if (sessionKey) {
+        try {
+          const data = JSON.parse(localStorage.getItem(sessionKey) ?? '{}');
+          const supabaseUser = data?.user;
+          if (!supabaseUser) return null;
+          return {
+            id: supabaseUser.id,
+            email: supabaseUser.email ?? '',
+            username:
+              supabaseUser.user_metadata?.username ?? supabaseUser.email ?? '',
+            role: supabaseUser.user_metadata?.role ?? 'user',
+            is_active: true,
+            last_login_at: new Date().toISOString(),
+            created_at: supabaseUser.created_at ?? '',
+            updated_at: supabaseUser.updated_at ?? '',
+          };
+        } catch {
+          return null;
+        }
+      }
     }
+    return null;
   }
 
   clearUser(): void {
-    if (typeof localStorage === "undefined") return;
-    localStorage.removeItem(USER_KEY);
+    // Dikelola oleh Supabase signOut()
   }
 }
