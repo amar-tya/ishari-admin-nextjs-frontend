@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useUser } from '@/presentation/hooks';
+import { useAuth } from '@/presentation/hooks/useAuth';
+import { Avatar } from '@/presentation/components/base';
 import {
   BookIcon,
   SearchIcon,
@@ -12,7 +15,27 @@ import {
 
 export function PublicNavbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const user = useUser();
+  const { logout } = useAuth();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -66,15 +89,89 @@ export function PublicNavbar() {
             <SearchIcon size={20} />
           </button>
 
-          {/* User Profile */}
-          <div
-            className="size-10 rounded-full bg-cover bg-center border-2 border-white shadow-[4px_4px_10px_rgba(81,200,120,0.1),-4px_-4px_10px_rgba(255,255,255,0.8)]"
-            aria-label="User profile picture showing a smiling man"
-            style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD750I6TzeMoUpV0UOPq4UIDukr5QG9nZxC_4xLQ1BQQsIAywI6NNogVQbXXYLqv5iZcVGtX-Ard4szx4r1FIdkDJAZ6B5CgLrOr_4oqi2oZ0jcV1wayEE6lCzNFNjf8_X_yq8fJkdGTALqR8CSm4_aYPIoXe7J2M9jw4-JbVGan2hpUGdUg96SCDNLQVjpi5qF9aYCMvE3R-NKIl_0EqEOMxO2PTonn5USFZY6xtETbcE_z6SNlA8bvRFW-Jon_d_B2Z6Ygj8qJlE')",
-            }}
-          ></div>
+          {/* User Profile Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              className="flex items-center justify-center size-10 rounded-full border-2 border-white shadow-[4px_4px_10px_rgba(81,200,120,0.1),-4px_-4px_10px_rgba(255,255,255,0.8)] transition-transform hover:scale-105"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              aria-label="User profile menu"
+            >
+              <Avatar
+                initials={user?.username?.substring(0, 2).toUpperCase() || 'GU'}
+                size="sm"
+              />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 py-1 z-50 flex flex-col overflow-hidden">
+                <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-100">
+                  <p className="text-sm font-semibold text-slate-800 capitalize truncate">
+                    {user?.username || 'Guest User'}
+                  </p>
+                  {user?.email && (
+                    <p className="text-xs text-slate-500 truncate mt-0.5">
+                      {user.email}
+                    </p>
+                  )}
+                  {!user && (
+                    <p className="text-xs text-slate-500 mt-0.5">Visitor</p>
+                  )}
+                </div>
+                <div className="py-1">
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        logout();
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+                        />
+                      </svg>
+                      Keluar
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        router.push('/login');
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm font-medium text-[#51c878] hover:bg-[#51c878]/10 transition-colors flex items-center gap-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m-3 0l3-3m0 0l-3-3m3 3H9"
+                        />
+                      </svg>
+                      Masuk
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button

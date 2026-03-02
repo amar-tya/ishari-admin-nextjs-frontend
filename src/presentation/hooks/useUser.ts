@@ -1,10 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { User } from "@/core/entities";
-import { AuthService } from "@/infrastructure/services";
-
-const authService = new AuthService();
+import { useState, useEffect } from 'react';
+import { User } from '@/core/entities';
+import { supabaseBrowserClient } from '@/infrastructure/supabase';
 
 /**
  * useUser Hook
@@ -17,13 +15,69 @@ export function useUser(): User | null {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Fetch user data after component mounts (client-side only)
-    // Using setTimeout to defer the state update and avoid React's cascading render warning
-    const timeoutId = setTimeout(() => {
-      setUser(authService.getUser());
-    }, 0);
+    let mounted = true;
 
-    return () => clearTimeout(timeoutId);
+    async function fetchUser() {
+      // Get the current session user directly from Supabase
+      const {
+        data: { user: supabaseUser },
+        error,
+      } = await supabaseBrowserClient.auth.getUser();
+
+      if (!mounted) return;
+
+      if (error || !supabaseUser) {
+        setUser(null);
+        return;
+      }
+
+      // Map Supabase User to our App User entity
+      const appUser: User = {
+        id: supabaseUser.id,
+        email: supabaseUser.email ?? '',
+        username:
+          supabaseUser.user_metadata?.username ?? supabaseUser.email ?? '',
+        role: supabaseUser.user_metadata?.role ?? 'user',
+        is_active: true,
+        last_login_at: supabaseUser.last_sign_in_at ?? new Date().toISOString(),
+        created_at: supabaseUser.created_at ?? '',
+        updated_at: supabaseUser.updated_at ?? '',
+      };
+
+      setUser(appUser);
+    }
+
+    fetchUser();
+
+    // Set up auth state listener to update user when auth state changes (e.g. login/logout)
+    const {
+      data: { subscription },
+    } = supabaseBrowserClient.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
+      if (session?.user) {
+        const supabaseUser = session.user;
+        setUser({
+          id: supabaseUser.id,
+          email: supabaseUser.email ?? '',
+          username:
+            supabaseUser.user_metadata?.username ?? supabaseUser.email ?? '',
+          role: supabaseUser.user_metadata?.role ?? 'user',
+          is_active: true,
+          last_login_at:
+            supabaseUser.last_sign_in_at ?? new Date().toISOString(),
+          created_at: supabaseUser.created_at ?? '',
+          updated_at: supabaseUser.updated_at ?? '',
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return user;

@@ -61,16 +61,34 @@ export async function proxy(request: NextRequest) {
 
   const isAuthenticated = !!user;
 
-  // Sudah login tapi akses halaman login → redirect ke dashboard
-  if (isPublicRoute(pathname) && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // Dapatkan detail role dari token
+  const role = user?.user_metadata?.role ?? 'user';
+
+  // Sudah login tapi akses halaman auth → redirect ke dashboard
+  if (
+    (pathname === '/login' ||
+      pathname === '/register' ||
+      pathname === '/forgot-password') &&
+    isAuthenticated
+  ) {
+    if (role !== 'user') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    } else {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
   }
 
-  // Belum login tapi akses halaman protected → redirect ke login
-  if (!isPublicRoute(pathname) && !isAuthenticated && pathname !== '/') {
+  // Belum login tapi akses halaman protected admin → redirect ke login
+  const isPublic = isPublicRoute(pathname);
+  if (!isPublic && !isAuthenticated) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // User biasa mencoba akses halaman admin -> redirect ke home public
+  if (!isPublic && isAuthenticated && role === 'user') {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return supabaseResponse;
