@@ -61,8 +61,19 @@ export async function proxy(request: NextRequest) {
 
   const isAuthenticated = !!user;
 
-  // Dapatkan detail role dari token
-  const role = user?.user_metadata?.role ?? 'user';
+  // Dapatkan role dari tabel public.users berdasarkan email
+  // (user_metadata tidak reliable karena bisa kosong)
+  let role = 'user';
+  if (user?.email) {
+    const { data: dbUser } = await supabase
+      .from('users')
+      .select('role')
+      .eq('email', user.email)
+      .single();
+    if (dbUser?.role) {
+      role = dbUser.role;
+    }
+  }
 
   // Sudah login tapi akses halaman auth → redirect ke dashboard
   if (
