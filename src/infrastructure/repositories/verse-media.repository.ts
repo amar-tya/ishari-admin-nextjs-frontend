@@ -120,8 +120,9 @@ export class VerseMediaRepository implements IVerseMediaRepository {
       if (error) throw new Error(error.message);
 
       return success(VerseMediaMapper.toDomain(data as VerseMediaApiResponse));
-    } catch (error: any) {
-      return failure(new ServerError(error.message));
+    } catch (error) {
+      const err = error as Error;
+      return failure(new ServerError(err.message));
     }
   }
 
@@ -146,8 +147,9 @@ export class VerseMediaRepository implements IVerseMediaRepository {
       if (dbError) throw new Error(dbError.message);
 
       return success(undefined);
-    } catch (error: any) {
-      return failure(new ServerError(error.message));
+    } catch (error) {
+      const err = error as Error;
+      return failure(new ServerError(err.message));
     }
   }
 
