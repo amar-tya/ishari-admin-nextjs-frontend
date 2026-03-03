@@ -19,28 +19,31 @@ export class VerseMediaRepository implements IVerseMediaRepository {
 
   async upload(dto: CreateVerseMediaDTO): Promise<Result<VerseMediaEntity>> {
     try {
-      // 1. Upload via Edge Function (handles transcoding and storage)
-      const formData = new FormData();
-      formData.append('file', dto.file);
-      formData.append('path', dto.storagePath);
+      // Get session token explicitly
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
 
-      const { error: edgeError } = await this.supabase.functions.invoke(
-        'transcode-audio',
-        {
-          body: formData,
-        }
-      );
+      if (!accessToken) {
+        throw new Error('No active session. Please log in again.');
+      }
 
-      if (edgeError) {
-        throw new Error(
-          edgeError.message || 'Failed to transcode and upload audio'
-        );
+      // 1. Upload directly to Supabase Storage bypassing the Edge Function
+      const { data: uploadData, error: uploadError } =
+        await this.supabase.storage
+          .from('verse-media')
+          .upload(dto.storagePath, dto.file, {
+            upsert: true,
+            contentType: dto.file.type || 'audio/mpeg',
+          });
+
+      if (uploadError) {
+        throw new Error(uploadError.message || 'Failed to upload audio');
       }
 
       // 2. Get public URL from storage
       const { data: publicUrlData } = this.supabase.storage
         .from('verse-media')
-        .getPublicUrl(dto.storagePath);
+        .getPublicUrl(uploadData.path);
 
       const mediaUrl = publicUrlData.publicUrl;
 
@@ -80,21 +83,24 @@ export class VerseMediaRepository implements IVerseMediaRepository {
 
       // If file is provided, we need to upload/replace it
       if (dto.file && dto.storagePath) {
-        const formData = new FormData();
-        formData.append('file', dto.file);
-        formData.append('path', dto.storagePath);
+        // Get session token explicitly - required when sending FormData
+        const { data: sessionData } = await this.supabase.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
 
-        const { error: edgeError } = await this.supabase.functions.invoke(
-          'transcode-audio',
-          {
-            body: formData,
-          }
-        );
+        if (!accessToken) {
+          throw new Error('No active session. Please log in again.');
+        }
 
-        if (edgeError) {
-          throw new Error(
-            edgeError.message || 'Failed to transcode and upload new audio'
-          );
+        // 1. Upload directly to Supabase Storage bypassing the Edge Function
+        const { error: uploadError } = await this.supabase.storage
+          .from('verse-media')
+          .upload(dto.storagePath, dto.file, {
+            upsert: true,
+            contentType: dto.file.type || 'audio/mpeg',
+          });
+
+        if (uploadError) {
+          throw new Error(uploadError.message || 'Failed to upload new audio');
         }
 
         const { data: publicUrlData } = this.supabase.storage
@@ -143,7 +149,7 @@ export class VerseMediaRepository implements IVerseMediaRepository {
       // 2. Soft delete from database
       const { error: dbError } = await this.supabase
         .from('verse_media')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
 
       if (dbError) throw new Error(dbError.message);

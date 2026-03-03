@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { CreateVerseMediaDTO, UpdateVerseMediaDTO } from '@/application/dto';
 import { Modal, TextArea, Button, SearchableSelect } from '../base';
 import { VerseMediaEntity, HadiEntityList, BookEntity } from '@/core/entities';
@@ -7,6 +9,63 @@ import {
   useChapterViewModel,
   useVerseViewModel,
 } from '@/presentation/view-models';
+
+let ffmpeg: FFmpeg | null = null;
+
+const loadFfmpeg = async () => {
+  if (ffmpeg) return ffmpeg;
+  ffmpeg = new FFmpeg();
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+  });
+  return ffmpeg;
+};
+
+const compressAudio = async (
+  file: File,
+  updateProgress?: (p: number) => void
+): Promise<File> => {
+  const ffmpegInstance = await loadFfmpeg();
+
+  if (updateProgress) {
+    ffmpegInstance.on('progress', ({ progress }) => {
+      updateProgress(progress);
+    });
+  }
+
+  const extensionMatch = file.name.match(/\.[0-9a-z]+$/i);
+  const extension = extensionMatch ? extensionMatch[0] : '.tmp';
+  const inputName = 'input' + extension;
+  const outputName = 'output.opus';
+
+  await ffmpegInstance.writeFile(inputName, await fetchFile(file));
+
+  await ffmpegInstance.exec([
+    '-i',
+    inputName,
+    '-c:a',
+    'libopus',
+    '-b:a',
+    '64k',
+    '-vbr',
+    'on',
+    outputName,
+  ]);
+
+  const fileData = await ffmpegInstance.readFile(outputName);
+  const data = fileData as Uint8Array;
+  const blob = new Blob([data.buffer as unknown as BlobPart], {
+    type: 'audio/opus',
+  });
+
+  await ffmpegInstance.deleteFile(inputName);
+  await ffmpegInstance.deleteFile(outputName);
+
+  const origNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
+  return new File([blob], `${origNameWithoutExt}.opus`, { type: 'audio/opus' });
+};
 
 export type VerseMediaFormMode = 'create' | 'edit';
 
@@ -77,6 +136,8 @@ const VerseMediaFormInternal: React.FC<{
   }, [mode, getBookList]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
 
   const handleBookChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const bookId = e.target.value;
@@ -132,6 +193,14 @@ const VerseMediaFormInternal: React.FC<{
           'unknown-hadi'
         : 'unknown-hadi';
 
+    const chapterData =
+      formData.chapterId && chapterList
+        ? chapterList.data.find((c) => String(c.id) === formData.chapterId)
+        : null;
+
+    const chapterTitle = chapterData?.title || 'unknown-chapter';
+    const chapterCategory = chapterData?.category || 'unknown-category';
+
     if (mode === 'edit' && initialData) {
       submitData = {
         description: formData.description.trim() || undefined,
@@ -141,37 +210,78 @@ const VerseMediaFormInternal: React.FC<{
       } as UpdateVerseMediaDTO;
 
       if (formData.file) {
-        submitData.file = formData.file;
-        const fileName = formData.file.name
-          .replace(/[^a-zA-Z0-9.\-_]/g, '-')
-          .toLowerCase();
-        const hadiSlug = hadiName.replace(/\s+/g, '-').toLowerCase();
-        submitData.storagePath = `${hadiSlug}/${Date.now()}-${fileName}`;
+        setIsCompressing(true);
+        setCompressionProgress(0);
+        try {
+          const processedFile = await compressAudio(
+            formData.file,
+            setCompressionProgress
+          );
+          submitData.file = processedFile;
+          const fileName = processedFile.name
+            .replace(/[^a-zA-Z0-9.\-_]/g, '-')
+            .toLowerCase();
+          const hadiSlug = hadiName.replace(/\s+/g, '-').toLowerCase();
+          const chapterSlug = chapterTitle.replace(/\s+/g, '-').toLowerCase();
+          const categorySlug = chapterCategory
+            .replace(/\s+/g, '-')
+            .toLowerCase();
+
+          submitData.storagePath = `${hadiSlug}/${chapterSlug}/${categorySlug}/${Date.now()}-${fileName}`;
+        } catch (error) {
+          console.error('Audio compression failed:', error);
+          setErrors((prev) => ({
+            ...prev,
+            file: 'Gagal mengkompresi audio. Coba lagi.',
+          }));
+          setIsCompressing(false);
+          return;
+        }
+        setIsCompressing(false);
       }
     } else {
       const parsedVerseId = Number(formData.verseId);
       const parsedHadiId = formData.hadiId
         ? Number(formData.hadiId)
         : undefined;
-      const file = formData.file as File;
 
-      const fileName = file.name
-        .replace(/[^a-zA-Z0-9.\-_]/g, '-')
-        .toLowerCase();
-      const hadiSlug = hadiName.replace(/\s+/g, '-').toLowerCase();
-      const storagePath = `${hadiSlug}/${Date.now()}-${fileName}`;
+      setIsCompressing(true);
+      setCompressionProgress(0);
+      try {
+        const file = await compressAudio(
+          formData.file as File,
+          setCompressionProgress
+        );
 
-      submitData = {
-        verseId: parsedVerseId,
-        hadiId: parsedHadiId,
-        mediaType: 'audio',
-        file: file,
-        type:
-          (formData.type as 'Joz' | 'Yahum' | 'Terem' | 'Inat' | 'Rojazz') ||
-          undefined,
-        description: formData.description.trim() || undefined,
-        storagePath,
-      } as CreateVerseMediaDTO;
+        const fileName = file.name
+          .replace(/[^a-zA-Z0-9.\-_]/g, '-')
+          .toLowerCase();
+        const hadiSlug = hadiName.replace(/\s+/g, '-').toLowerCase();
+        const chapterSlug = chapterTitle.replace(/\s+/g, '-').toLowerCase();
+        const categorySlug = chapterCategory.replace(/\s+/g, '-').toLowerCase();
+        const storagePath = `${hadiSlug}/${chapterSlug}/${categorySlug}/${Date.now()}-${fileName}`;
+
+        submitData = {
+          verseId: parsedVerseId,
+          hadiId: parsedHadiId,
+          mediaType: 'audio',
+          file: file,
+          type:
+            (formData.type as 'Joz' | 'Yahum' | 'Terem' | 'Inat' | 'Rojazz') ||
+            undefined,
+          description: formData.description.trim() || undefined,
+          storagePath,
+        } as CreateVerseMediaDTO;
+      } catch (error) {
+        console.error('Audio compression failed:', error);
+        setErrors((prev) => ({
+          ...prev,
+          file: 'Gagal mengkompresi audio. Coba lagi.',
+        }));
+        setIsCompressing(false);
+        return;
+      }
+      setIsCompressing(false);
     }
 
     const success = await onSubmit(submitData);
@@ -214,7 +324,7 @@ const VerseMediaFormInternal: React.FC<{
           className="w-full px-4 py-3 border border-border-light rounded-xl text-body bg-bg-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
           value={formData.type}
           onChange={handleInputChange}
-          disabled={isLoading}
+          disabled={isLoading || isCompressing}
         >
           <option value="">Pilih Tipe...</option>
           <option value="Joz">Joz</option>
@@ -238,7 +348,7 @@ const VerseMediaFormInternal: React.FC<{
               className="w-full px-4 py-2.5 border border-border-light rounded-lg text-sm bg-white focus:outline-none focus:border-primary transition-colors disabled:opacity-50"
               value={formData.bookId}
               onChange={handleBookChange}
-              disabled={isLoading}
+              disabled={isLoading || isCompressing}
             >
               <option value="">Pilih Kitab...</option>
               {bookList?.data.map((b: BookEntity) => (
@@ -295,7 +405,7 @@ const VerseMediaFormInternal: React.FC<{
             className="w-full px-4 py-3 border border-border-light rounded-xl text-body bg-bg-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
             value={formData.hadiId}
             onChange={handleInputChange}
-            disabled={isLoading}
+            disabled={isLoading || isCompressing}
           >
             <option value="">Pilih Hadi...</option>
             {hadiList?.data.map((h) => (
@@ -314,7 +424,7 @@ const VerseMediaFormInternal: React.FC<{
         value={formData.description}
         onChange={handleInputChange}
         error={errors.description}
-        disabled={isLoading}
+        disabled={isLoading || isCompressing}
         rows={3}
       />
 
@@ -326,7 +436,7 @@ const VerseMediaFormInternal: React.FC<{
           type="file"
           accept="audio/*"
           onChange={handleFileChange}
-          disabled={isLoading}
+          disabled={isLoading || isCompressing}
           className="block w-full text-sm text-gray-500
             file:mr-4 file:py-2 file:px-4
             file:rounded-full file:border-0
@@ -349,12 +459,20 @@ const VerseMediaFormInternal: React.FC<{
           variant="secondary"
           type="button"
           onClick={onClose}
-          disabled={isLoading}
+          disabled={isLoading || isCompressing}
         >
           Batal
         </Button>
-        <Button variant="primary" type="submit" disabled={isLoading}>
-          {mode === 'edit' ? 'Update Audio' : 'Upload Audio'}
+        <Button
+          variant="primary"
+          type="submit"
+          disabled={isLoading || isCompressing}
+        >
+          {isCompressing
+            ? `Mengkompresi... ${Math.round(compressionProgress * 100)}%`
+            : mode === 'edit'
+              ? 'Update Audio'
+              : 'Upload Audio'}
         </Button>
       </div>
     </form>

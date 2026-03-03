@@ -6,6 +6,7 @@ import {
   VerseMediaToolbar,
   VerseMediaUploadForm,
 } from '@/presentation/components/verse-media';
+import { ConfirmModal, SuccessModal } from '@/presentation/components/base';
 import {
   useVerseMediaViewModel,
   useHadiViewModel,
@@ -33,6 +34,12 @@ export default function VerseMediaPage() {
   const [selectedMedia, setSelectedMedia] = useState<
     VerseMediaEntity | undefined
   >(undefined);
+
+  // Modal states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [mediaIdToDelete, setMediaIdToDelete] = useState<number | null>(null);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     getVerseMediaList();
@@ -64,34 +71,68 @@ export default function VerseMediaPage() {
     }
   };
 
-  const handleDeleteMedia = async (id: number) => {
-    const media = verseMediaList?.data.find((m) => m.id === id);
-    if (
-      media &&
-      window.confirm('Apakah Anda yakin ingin menghapus media ini?')
-    ) {
-      const storagePathMatch = media.mediaUrl.match(/verse-media\/(.+)$/);
-      const storagePath = storagePathMatch ? storagePathMatch[1] : '';
-      if (storagePath) {
-        await removeVerseMedia(id, storagePath);
-      } else {
-        await removeVerseMedia(id, ''); // Fallback
+  const handleDeleteMedia = (id: number) => {
+    setMediaIdToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (mediaIdToDelete === null) return;
+
+    const media = verseMediaList?.data.find((m) => m.id === mediaIdToDelete);
+    if (!media) {
+      setIsDeleteModalOpen(false);
+      setMediaIdToDelete(null);
+      return;
+    }
+
+    try {
+      let storagePath = '';
+      if (media.mediaUrl) {
+        const storagePathMatch = media.mediaUrl.match(/verse-media\/(.+)$/);
+        storagePath = storagePathMatch
+          ? decodeURIComponent(storagePathMatch[1])
+          : '';
       }
+
+      const isSuccess = await removeVerseMedia(
+        mediaIdToDelete,
+        storagePath || ''
+      );
+
+      if (isSuccess) {
+        setSuccessMessage('Media berhasil dihapus.');
+        setIsSuccessModalOpen(true);
+      }
+    } finally {
+      setIsDeleteModalOpen(false);
+      setMediaIdToDelete(null);
     }
   };
 
   const handleFormSubmit = async (
     data: CreateVerseMediaDTO | UpdateVerseMediaDTO
   ) => {
+    let result = false;
     if (formMode === 'create') {
-      return await storeVerseMedia(data as CreateVerseMediaDTO);
+      result = await storeVerseMedia(data as CreateVerseMediaDTO);
     } else if (selectedMedia) {
-      return await updateVerseMedia(
+      result = await updateVerseMedia(
         selectedMedia.id,
         data as UpdateVerseMediaDTO
       );
     }
-    return false;
+
+    if (result) {
+      setSuccessMessage(
+        formMode === 'create'
+          ? 'Media berhasil ditambahkan.'
+          : 'Media berhasil diperbarui.'
+      );
+      setIsSuccessModalOpen(true);
+    }
+
+    return result;
   };
 
   return (
@@ -158,6 +199,28 @@ export default function VerseMediaPage() {
         initialData={selectedMedia}
         hadiList={hadiList}
         error={error}
+      />
+
+      {/* Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setMediaIdToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Hapus Media?"
+        message="Apakah Anda yakin ingin menghapus media ini? File audio juga akan dihapus dari storage."
+        confirmText="Hapus"
+        cancelText="Batal"
+        isLoading={isLoading}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        message={successMessage}
       />
     </div>
   );
