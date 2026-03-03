@@ -5,6 +5,7 @@ export * from './translation.mapper';
 export * from './user.mapper';
 export * from './bookmark.mapper';
 export * from './hadi.mapper';
+export * from './verse-media.mapper';
 export type {
   BookApiResponse,
   ListBookApiResponse,

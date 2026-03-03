@@ -6,3 +6,4 @@ export * from './translation.dto';
 export * from './user.dto';
 export * from './bookmark.dto';
 export * from './hadi.dto';
+export * from './verse-media.dto';

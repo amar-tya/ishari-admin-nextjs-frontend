@@ -35,6 +35,11 @@ import {
   FindHadiUseCase,
   ListHadiUseCase,
   GetDashboardStatsUseCase,
+  UploadVerseMediaUseCase,
+  UpdateVerseMediaUseCase,
+  DeleteVerseMediaUseCase,
+  FindVerseMediaUseCase,
+  ListVerseMediaUseCase,
 } from '@/application/usecases';
 import {
   IBookRepository,
@@ -44,6 +49,7 @@ import {
   IBookmarkRepositoryPort,
   IHadiRepository,
   IStatsRepository,
+  IVerseMediaRepository,
 } from '@/application/ports';
 import {
   AuthRepository,
@@ -54,6 +60,7 @@ import {
   BookmarkRepository,
   HadiRepository,
   StatsRepository,
+  VerseMediaRepository,
 } from '@/infrastructure/repositories';
 import { AuthService } from '@/infrastructure/services';
 import { BookRepository } from '@/infrastructure/repositories/book.repository';
@@ -94,6 +101,9 @@ const hadiRepository: IHadiRepository = new HadiRepository(
   supabaseBrowserClient
 );
 const statsRepository: IStatsRepository = new StatsRepository(
+  supabaseBrowserClient
+);
+const verseMediaRepository: IVerseMediaRepository = new VerseMediaRepository(
   supabaseBrowserClient
 );
 
@@ -164,7 +174,21 @@ const findHadiUseCase = new FindHadiUseCase(hadiRepository);
 const listHadiUseCase = new ListHadiUseCase(hadiRepository);
 
 // Use Cases - Stats
+// Use Cases - Stats
 const getDashboardStatsUseCase = new GetDashboardStatsUseCase(statsRepository);
+
+// Use Cases - Verse Media
+const uploadVerseMediaUseCase = new UploadVerseMediaUseCase(
+  verseMediaRepository
+);
+const updateVerseMediaUseCase = new UpdateVerseMediaUseCase(
+  verseMediaRepository
+);
+const deleteVerseMediaUseCase = new DeleteVerseMediaUseCase(
+  verseMediaRepository
+);
+const findVerseMediaUseCase = new FindVerseMediaUseCase(verseMediaRepository);
+const listVerseMediaUseCase = new ListVerseMediaUseCase(verseMediaRepository);
 
 /**
  * Container exports
@@ -225,6 +249,13 @@ export const container = {
   // Use Cases - Stats
   getDashboardStatsUseCase,
 
+  // Use Cases - Verse Media
+  uploadVerseMediaUseCase,
+  updateVerseMediaUseCase,
+  deleteVerseMediaUseCase,
+  findVerseMediaUseCase,
+  listVerseMediaUseCase,
+
   // Services
   authService,
 
@@ -237,6 +268,7 @@ export const container = {
   userRepository,
   bookmarkRepository,
   hadiRepository,
+  verseMediaRepository,
 } as const;
 
 export type Container = typeof container;
