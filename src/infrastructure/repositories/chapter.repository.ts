@@ -41,6 +41,9 @@ export class ChapterRepository implements IChapterRepository {
     if (criteria.bookId) {
       query = query.eq('book_id', criteria.bookId);
     }
+    if (criteria.chapterId) {
+      query = query.eq('id', criteria.chapterId);
+    }
     if (criteria.category) {
       // Support multiple categories (comma-separated)
       const cats = String(criteria.category).split(',').filter(Boolean);
