@@ -17,9 +17,15 @@ interface VerseItemProps {
   verse: VerseEntity;
   index: number;
   showTranslation: boolean;
+  onPlayClick?: (verse: VerseEntity) => void;
 }
 
-export function VerseItem({ verse, index, showTranslation }: VerseItemProps) {
+export function VerseItem({
+  verse,
+  index,
+  showTranslation,
+  onPlayClick,
+}: VerseItemProps) {
   // Mock progress for demonstration purposes
   const progress = index === 0 ? 35 : 0;
 
@@ -73,15 +79,20 @@ export function VerseItem({ verse, index, showTranslation }: VerseItemProps) {
               {toArabicNumber(verse.verseNumber)}
             </span>
           </div>
-          {/* <div className="relative group/audio">
-            <button className="size-6 rounded-xl bg-white shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.8)] text-[#51c878] hover:text-[#3da35f] hover:shadow-none hover:bg-slate-100 transition-all flex items-center justify-center">
-              <PlayIcon size={12} />
-            </button>
-          </div>
-          <button className="size-6 rounded-xl bg-transparent hover:bg-slate-100 text-slate-400 hover:text-[#51c878] transition-all flex items-center justify-center">
+          {verse.verseMedia && verse.verseMedia.length > 0 && (
+            <div className="relative group/audio">
+              <button
+                onClick={() => onPlayClick && onPlayClick(verse)}
+                className="size-6 rounded-xl bg-white border shadow-md text-[#51c878] hover:text-[#3da35f] hover:shadow-none hover:bg-slate-100 transition-all flex items-center justify-center"
+              >
+                <PlayIcon size={16} />
+              </button>
+            </div>
+          )}
+          {/* <button className="size-6 rounded-xl bg-transparent hover:bg-slate-100 text-slate-400 hover:text-[#51c878] transition-all flex items-center justify-center">
             <BookmarkIcon size={12} />
-          </button>
-          <button className="size-6 rounded-xl bg-transparent hover:bg-slate-100 text-slate-400 hover:text-[#51c878] transition-all flex items-center justify-center">
+          </button> */}
+          {/* <button className="size-6 rounded-xl bg-transparent hover:bg-slate-100 text-slate-400 hover:text-[#51c878] transition-all flex items-center justify-center">
             <ShareIcon size={12} />
           </button> */}
         </div>

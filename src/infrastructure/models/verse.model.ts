@@ -22,6 +22,7 @@ export interface VerseApiResponse {
   transliteration: string;
   created_at: string;
   updated_at: string;
+  verse_media?: { id: number; media_type: string }[];
 }
 
 export interface CreateVerseApiResponse {

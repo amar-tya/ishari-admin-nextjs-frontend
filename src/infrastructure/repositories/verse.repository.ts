@@ -28,7 +28,10 @@ export class VerseRepository implements IVerseRepositoryPort {
 
     let query = this.supabase
       .from('verses')
-      .select('*, chapter:chapters(*, book:books(*))', { count: 'exact' })
+      .select(
+        '*, chapter:chapters(*, book:books(*)), verse_media(id, media_type)',
+        { count: 'exact' }
+      )
       .is('deleted_at', null)
       .range(from, to)
       .order('verse_number', { ascending: true });
@@ -68,7 +71,9 @@ export class VerseRepository implements IVerseRepositoryPort {
     const { data, error } = await this.supabase
       .from('verses')
       .insert(apiRequest)
-      .select('*, chapter:chapters(*, book:books(*))')
+      .select(
+        '*, chapter:chapters(*, book:books(*)), verse_media(id, media_type)'
+      )
       .single();
 
     if (error) return failure(new ServerError(error.message));
@@ -81,7 +86,9 @@ export class VerseRepository implements IVerseRepositoryPort {
       .from('verses')
       .update(apiRequest)
       .eq('id', request.verseId)
-      .select('*, chapter:chapters(*, book:books(*))')
+      .select(
+        '*, chapter:chapters(*, book:books(*)), verse_media(id, media_type)'
+      )
       .single();
 
     if (error) return failure(new ServerError(error.message));

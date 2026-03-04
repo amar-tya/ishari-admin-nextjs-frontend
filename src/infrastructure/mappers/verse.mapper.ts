@@ -24,6 +24,12 @@ export class VerseMapper {
       transliteration: apiData.transliteration,
       createdAt: apiData.created_at,
       updatedAt: apiData.updated_at,
+      verseMedia: apiData.verse_media
+        ? apiData.verse_media.map((media) => ({
+            id: media.id,
+            mediaType: media.media_type,
+          }))
+        : undefined,
     };
   }
 

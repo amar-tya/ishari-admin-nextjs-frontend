@@ -7,6 +7,7 @@ import { VerseEntity, ChapterEntity } from '@/core/entities';
 import { PublicSidebar } from './PublicSidebar';
 import { VerseItem } from './VerseItem';
 import { PublicAudioPlayer } from './PublicAudioPlayer';
+import { VerseActionSheet } from './VerseActionSheet';
 import {
   PlayIcon,
   ChevronLeftIcon,
@@ -26,6 +27,15 @@ export function PublicDashboard() {
   const [verses, setVerses] = useState<VerseEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTranslation, setShowTranslation] = useState(true);
+
+  const [selectedVerseForAudio, setSelectedVerseForAudio] =
+    useState<VerseEntity | null>(null);
+  const [isAudioSheetOpen, setIsAudioSheetOpen] = useState(false);
+
+  const handlePlayClick = (verse: VerseEntity) => {
+    setSelectedVerseForAudio(verse);
+    setIsAudioSheetOpen(true);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,6 +112,7 @@ export function PublicDashboard() {
                   verse={verse}
                   index={index}
                   showTranslation={showTranslation}
+                  onPlayClick={handlePlayClick}
                 />
               ))}
             </div>
@@ -124,7 +135,13 @@ export function PublicDashboard() {
         </section>
       </main>
 
-      {/* <PublicAudioPlayer /> */}
+      <PublicAudioPlayer />
+
+      <VerseActionSheet
+        isOpen={isAudioSheetOpen}
+        onClose={() => setIsAudioSheetOpen(false)}
+        verse={selectedVerseForAudio}
+      />
     </>
   );
 }
