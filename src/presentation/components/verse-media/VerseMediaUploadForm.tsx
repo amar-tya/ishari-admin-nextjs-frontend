@@ -10,24 +10,36 @@ import {
   useVerseViewModel,
 } from '@/presentation/view-models';
 
-let ffmpeg: FFmpeg | null = null;
+// Cache the blob URLs so we only fetch them once
+let cachedCoreURL: string | null = null;
+let cachedWasmURL: string | null = null;
 
-const loadFfmpeg = async () => {
-  if (ffmpeg) return ffmpeg;
-  ffmpeg = new FFmpeg();
+const getBlobURLs = async () => {
+  if (cachedCoreURL && cachedWasmURL) {
+    return { coreURL: cachedCoreURL, wasmURL: cachedWasmURL };
+  }
   const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-  });
-  return ffmpeg;
+  cachedCoreURL = await toBlobURL(
+    `${baseURL}/ffmpeg-core.js`,
+    'text/javascript'
+  );
+  cachedWasmURL = await toBlobURL(
+    `${baseURL}/ffmpeg-core.wasm`,
+    'application/wasm'
+  );
+  return { coreURL: cachedCoreURL, wasmURL: cachedWasmURL };
 };
 
 const compressAudio = async (
   file: File,
   updateProgress?: (p: number) => void
 ): Promise<File> => {
-  const ffmpegInstance = await loadFfmpeg();
+  // Create a fresh FFmpeg instance each time to avoid WASM memory accumulation
+  // that causes "RuntimeError: memory access out of bounds"
+  const ffmpegInstance = new FFmpeg();
+  const { coreURL, wasmURL } = await getBlobURLs();
+
+  await ffmpegInstance.load({ coreURL, wasmURL });
 
   if (updateProgress) {
     ffmpegInstance.on('progress', ({ progress }) => {
@@ -40,31 +52,38 @@ const compressAudio = async (
   const inputName = 'input' + extension;
   const outputName = 'output.opus';
 
-  await ffmpegInstance.writeFile(inputName, await fetchFile(file));
+  try {
+    await ffmpegInstance.writeFile(inputName, await fetchFile(file));
 
-  await ffmpegInstance.exec([
-    '-i',
-    inputName,
-    '-c:a',
-    'libopus',
-    '-b:a',
-    '64k',
-    '-vbr',
-    'on',
-    outputName,
-  ]);
+    await ffmpegInstance.exec([
+      '-i',
+      inputName,
+      '-c:a',
+      'libopus',
+      '-b:a',
+      '64k',
+      '-vbr',
+      'on',
+      outputName,
+    ]);
 
-  const fileData = await ffmpegInstance.readFile(outputName);
-  const data = fileData as Uint8Array;
-  const blob = new Blob([data.buffer as unknown as BlobPart], {
-    type: 'audio/opus',
-  });
+    const fileData = await ffmpegInstance.readFile(outputName);
+    const data = fileData as Uint8Array;
+    const blob = new Blob([data.buffer as unknown as BlobPart], {
+      type: 'audio/opus',
+    });
 
-  await ffmpegInstance.deleteFile(inputName);
-  await ffmpegInstance.deleteFile(outputName);
-
-  const origNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.'));
-  return new File([blob], `${origNameWithoutExt}.opus`, { type: 'audio/opus' });
+    const origNameWithoutExt = file.name.substring(
+      0,
+      file.name.lastIndexOf('.')
+    );
+    return new File([blob], `${origNameWithoutExt}.opus`, {
+      type: 'audio/opus',
+    });
+  } finally {
+    // Always terminate the instance to free WASM memory
+    ffmpegInstance.terminate();
+  }
 };
 
 export type VerseMediaFormMode = 'create' | 'edit';
