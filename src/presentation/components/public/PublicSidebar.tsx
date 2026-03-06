@@ -9,6 +9,8 @@ import {
 import { ChapterEntity, VerseMediaEntity } from '@/core/entities';
 import { useVerseMedia } from '@/presentation/hooks/useVerseMedia';
 import { useAudioPlayerStore } from '@/presentation/stores/useAudioPlayerStore';
+import { ChapterSelectionModal } from './ChapterSelectionModal';
+import { useRouter } from 'next/navigation';
 
 interface PublicSidebarProps {
   chapter: ChapterEntity | null;
@@ -27,6 +29,8 @@ export function PublicSidebar({
     null as VerseMediaEntity | null
   );
   const [loading, setLoading] = React.useState(true);
+  const [isChapterModalOpen, setIsChapterModalOpen] = React.useState(false);
+  const router = useRouter();
 
   React.useEffect(() => {
     async function fetchSuggestion() {
@@ -53,14 +57,21 @@ export function PublicSidebar({
     }
   };
 
+  const handleChapterSelect = (chapterId: number) => {
+    router.push(`/?id=${chapterId}`);
+  };
+
   return (
     <aside className="hidden lg:block lg:col-span-3 space-y-6">
       <div className="sticky top-28">
-        <div className="bg-white rounded-2xl p-6 shadow-[4px_4px_10px_rgba(81,200,120,0.1),-4px_-4px_10px_rgba(255,255,255,0.8)] border border-slate-50 mb-6">
-          <span className="inline-flex items-center justify-center px-3 py-1 bg-[#e6f7ec] text-[#3da35f] text-xs font-bold rounded-full mb-3">
+        <div
+          onClick={() => setIsChapterModalOpen(true)}
+          className="bg-white rounded-2xl p-6 shadow-[4px_4px_10px_rgba(81,200,120,0.1),-4px_-4px_10px_rgba(255,255,255,0.8)] border border-slate-50 mb-6 cursor-pointer hover:border-[#51c878]/30 transition-all group"
+        >
+          <span className="inline-flex items-center justify-center px-3 py-1 bg-[#e6f7ec] text-[#3da35f] text-xs font-bold rounded-full mb-3 group-hover:bg-[#51c878] group-hover:text-white transition-colors">
             {chapter?.category || 'Meccan'}
           </span>
-          <h1 className="text-[clamp(1.125rem,2.5vw,1.5rem)] font-bold text-[#1e293b] mb-1">
+          <h1 className="text-[clamp(1.125rem,2.5vw,1.5rem)] font-bold text-[#1e293b] mb-1 group-hover:text-[#51c878] transition-colors">
             {chapter?.title || 'Unknown Surah'}
           </h1>
           <p className="text-[#475569] text-sm mb-4">
@@ -142,6 +153,13 @@ export function PublicSidebar({
           )}
         </div>
       </div>
+
+      <ChapterSelectionModal
+        isOpen={isChapterModalOpen}
+        onClose={() => setIsChapterModalOpen(false)}
+        onSelect={handleChapterSelect}
+        currentChapterId={chapter?.id}
+      />
     </aside>
   );
 }

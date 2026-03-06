@@ -13,6 +13,8 @@ import {
   ChevronRightIcon,
   TranslationsIcon,
 } from '@/presentation/components/base/icons';
+import { ChapterSelectionModal } from './ChapterSelectionModal';
+import { useRouter } from 'next/navigation';
 
 export function PublicDashboard() {
   const searchParams = useSearchParams();
@@ -30,10 +32,17 @@ export function PublicDashboard() {
   const [selectedVerseForAudio, setSelectedVerseForAudio] =
     useState<VerseEntity | null>(null);
   const [isAudioSheetOpen, setIsAudioSheetOpen] = useState(false);
+  const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
+
+  const router = useRouter();
 
   const handlePlayClick = (verse: VerseEntity) => {
     setSelectedVerseForAudio(verse);
     setIsAudioSheetOpen(true);
+  };
+
+  const handleChapterSelect = (selectedChapterId: number) => {
+    router.push(`/?id=${selectedChapterId}`);
   };
 
   useEffect(() => {
@@ -72,7 +81,10 @@ export function PublicDashboard() {
         {/* Center Column */}
         <section className="lg:col-span-9 flex flex-col gap-6">
           <div className="lg:hidden flex justify-between items-end mb-4">
-            <div>
+            <div
+              onClick={() => setIsChapterModalOpen(true)}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+            >
               <h1 className="text-[clamp(1.25rem,4vw,1.75rem)] font-bold text-[#1e293b]">
                 {chapter?.title || 'Loading...'}
               </h1>
@@ -139,6 +151,13 @@ export function PublicDashboard() {
         isOpen={isAudioSheetOpen}
         onClose={() => setIsAudioSheetOpen(false)}
         verse={selectedVerseForAudio}
+      />
+
+      <ChapterSelectionModal
+        isOpen={isChapterModalOpen}
+        onClose={() => setIsChapterModalOpen(false)}
+        onSelect={handleChapterSelect}
+        currentChapterId={chapterId}
       />
     </>
   );
