@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { CreateVerseMediaDTO, UpdateVerseMediaDTO } from '@/application/dto';
+import { CreateVerseMediaDTO, UpdateVerseMediaDTO, CreateHadiDTO, UpdateHadiDTO } from '@/application/dto';
 import { Modal, TextArea, Button, SearchableSelect } from '../base';
+import { PlusIcon } from '../base/icons';
 import { VerseMediaEntity, HadiEntityList, BookEntity, VerseEntity } from '@/core/entities';
 import {
   useBookViewModel,
   useChapterViewModel,
   useVerseViewModel,
+  useHadiViewModel,
 } from '@/presentation/view-models';
+import { HadiForm } from '../hadi';
 
 // Cache the blob URLs so we only fetch them once
 let cachedCoreURL: string | null = null;
@@ -120,10 +123,9 @@ const VerseMediaFormInternal: React.FC<{
   isLoading: boolean;
   mode: VerseMediaFormMode;
   initialData?: VerseMediaEntity;
-  hadiList: HadiEntityList | null;
   error?: string | null;
   preSelectedVerse?: VerseEntity;
-}> = ({ onClose, onSubmit, isLoading, mode, initialData, hadiList, error, preSelectedVerse }) => {
+}> = ({ onClose, onSubmit, isLoading, mode, initialData, error, preSelectedVerse }) => {
   const { bookList, getBookList } = useBookViewModel();
   const {
     chapterList,
@@ -135,6 +137,13 @@ const VerseMediaFormInternal: React.FC<{
     findVerse,
     isLoading: isVerseLoading,
   } = useVerseViewModel();
+  const {
+    hadiList: internalHadiList,
+    getHadiList,
+    storeHadi,
+    isLoading: isHadiLoading,
+    error: hadiError,
+  } = useHadiViewModel();
 
   const [formData, setFormData] = useState<FormData>({
     bookId: '',
@@ -154,11 +163,25 @@ const VerseMediaFormInternal: React.FC<{
     file: null,
   });
 
+  const [isCreateHadiOpen, setIsCreateHadiOpen] = useState(false);
+
+  useEffect(() => {
+    getHadiList();
+  }, [getHadiList]);
+
   useEffect(() => {
     if (mode === 'create' && !preSelectedVerse) {
       getBookList();
     }
   }, [mode, preSelectedVerse, getBookList]);
+
+  const handleCreateHadi = async (dto: CreateHadiDTO | UpdateHadiDTO) => {
+    const result = await storeHadi(dto as CreateHadiDTO);
+    if (result) {
+      setIsCreateHadiOpen(false);
+    }
+    return result;
+  };
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isCompressing, setIsCompressing] = useState(false);
@@ -213,8 +236,8 @@ const VerseMediaFormInternal: React.FC<{
     let submitData: CreateVerseMediaDTO | UpdateVerseMediaDTO;
 
     const hadiName =
-      formData.hadiId && hadiList
-        ? hadiList.data.find((h) => String(h.id) === formData.hadiId)?.name ||
+      formData.hadiId && internalHadiList
+        ? internalHadiList.data.find((h) => String(h.id) === formData.hadiId)?.name ||
           'unknown-hadi'
         : 'unknown-hadi';
 
@@ -335,6 +358,7 @@ const VerseMediaFormInternal: React.FC<{
   };
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -438,20 +462,32 @@ const VerseMediaFormInternal: React.FC<{
           <label className="text-body font-semibold text-text-primary">
             Hadi (Optional)
           </label>
-          <select
-            name="hadiId"
-            className="w-full px-4 py-3 border border-border-light rounded-xl text-body bg-bg-main focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-            value={formData.hadiId}
-            onChange={handleInputChange}
-            disabled={isLoading || isCompressing}
-          >
-            <option value="">Pilih Hadi...</option>
-            {hadiList?.data.map((h) => (
-              <option key={h.id} value={String(h.id)}>
-                {h.name}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-start gap-2">
+            <div className="flex-1">
+              <SearchableSelect
+                name="hadiId"
+                placeholder="Pilih Hadi..."
+                value={formData.hadiId}
+                onChange={handleInputChange}
+                options={
+                  internalHadiList?.data.map((h) => ({
+                    value: h.id,
+                    label: h.name,
+                  })) || []
+                }
+                disabled={isLoading || isCompressing || isHadiLoading}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsCreateHadiOpen(true)}
+              disabled={isLoading || isCompressing}
+              title="Tambah Hadi Baru"
+              className="p-2.5 rounded-xl border border-border-light bg-bg-main hover:bg-primary/10 hover:border-primary hover:text-primary text-text-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <PlusIcon size={18} />
+            </button>
+          </div>
         </div>
       )}
 
@@ -513,7 +549,17 @@ const VerseMediaFormInternal: React.FC<{
               : 'Upload Audio'}
         </Button>
       </div>
+
     </form>
+    <HadiForm
+      isOpen={isCreateHadiOpen}
+      onClose={() => setIsCreateHadiOpen(false)}
+      onSubmit={handleCreateHadi}
+      isLoading={isHadiLoading}
+      mode="create"
+      error={hadiError}
+    />
+  </>
   );
 };
 
@@ -524,7 +570,6 @@ export const VerseMediaUploadForm: React.FC<VerseMediaFormProps> = ({
   isLoading = false,
   mode = 'create',
   initialData,
-  hadiList,
   error,
   preSelectedVerse,
 }) => {
@@ -540,7 +585,6 @@ export const VerseMediaUploadForm: React.FC<VerseMediaFormProps> = ({
         isLoading={isLoading}
         mode={mode}
         initialData={initialData}
-        hadiList={hadiList}
         error={error}
         preSelectedVerse={preSelectedVerse}
       />
