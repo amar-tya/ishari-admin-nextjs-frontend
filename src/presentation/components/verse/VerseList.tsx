@@ -1,11 +1,12 @@
 import React from 'react';
 import { VerseEntity } from '@/core/entities';
-import { EditIcon, TrashIcon } from '@/presentation/components/base/icons';
+import { EditIcon, TrashIcon, VerseMediaIcon } from '@/presentation/components/base/icons';
 
 interface VerseListProps {
   verses: VerseEntity[];
   onEdit: (verse: VerseEntity) => void;
   onDelete: (verse: VerseEntity) => void;
+  onMedia: (verse: VerseEntity) => void;
   selectedIds: number[];
   onSelectionChange: (ids: number[]) => void;
 }
@@ -14,6 +15,7 @@ export const VerseList: React.FC<VerseListProps> = ({
   verses = [],
   onEdit,
   onDelete,
+  onMedia,
   selectedIds,
   onSelectionChange,
 }) => {
@@ -135,6 +137,13 @@ export const VerseList: React.FC<VerseListProps> = ({
                         title="Edit"
                       >
                         <EditIcon size={20} />
+                      </button>
+                      <button
+                        onClick={() => onMedia(verse)}
+                        className="p-1 text-[var(--color-text-secondary)] hover:text-green-600 transition-colors cursor-pointer"
+                        title="Manage Media"
+                      >
+                        <VerseMediaIcon size={20} />
                       </button>
                       <button
                         onClick={() => onDelete(verse)}

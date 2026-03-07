@@ -3,7 +3,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { CreateVerseMediaDTO, UpdateVerseMediaDTO } from '@/application/dto';
 import { Modal, TextArea, Button, SearchableSelect } from '../base';
-import { VerseMediaEntity, HadiEntityList, BookEntity } from '@/core/entities';
+import { VerseMediaEntity, HadiEntityList, BookEntity, VerseEntity } from '@/core/entities';
 import {
   useBookViewModel,
   useChapterViewModel,
@@ -99,6 +99,7 @@ interface VerseMediaFormProps {
   initialData?: VerseMediaEntity;
   hadiList: HadiEntityList | null;
   error?: string | null;
+  preSelectedVerse?: VerseEntity;
 }
 
 interface FormData {
@@ -121,7 +122,8 @@ const VerseMediaFormInternal: React.FC<{
   initialData?: VerseMediaEntity;
   hadiList: HadiEntityList | null;
   error?: string | null;
-}> = ({ onClose, onSubmit, isLoading, mode, initialData, hadiList, error }) => {
+  preSelectedVerse?: VerseEntity;
+}> = ({ onClose, onSubmit, isLoading, mode, initialData, hadiList, error, preSelectedVerse }) => {
   const { bookList, getBookList } = useBookViewModel();
   const {
     chapterList,
@@ -137,7 +139,11 @@ const VerseMediaFormInternal: React.FC<{
   const [formData, setFormData] = useState<FormData>({
     bookId: '',
     chapterId: '',
-    verseId: mode === 'edit' && initialData ? String(initialData.verseId) : '',
+    verseId: mode === 'edit' && initialData
+      ? String(initialData.verseId)
+      : preSelectedVerse
+        ? String(preSelectedVerse.id)
+        : '',
     hadiId:
       mode === 'edit' && initialData?.hadiId ? String(initialData.hadiId) : '',
     description:
@@ -149,10 +155,10 @@ const VerseMediaFormInternal: React.FC<{
   });
 
   useEffect(() => {
-    if (mode === 'create') {
+    if (mode === 'create' && !preSelectedVerse) {
       getBookList();
     }
-  }, [mode, getBookList]);
+  }, [mode, preSelectedVerse, getBookList]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isCompressing, setIsCompressing] = useState(false);
@@ -213,9 +219,11 @@ const VerseMediaFormInternal: React.FC<{
         : 'unknown-hadi';
 
     const chapterData =
-      formData.chapterId && chapterList
-        ? chapterList.data.find((c) => String(c.id) === formData.chapterId)
-        : null;
+      preSelectedVerse?.chapter
+        ? preSelectedVerse.chapter
+        : formData.chapterId && chapterList
+          ? chapterList.data.find((c) => String(c.id) === formData.chapterId)
+          : null;
 
     const chapterTitle = chapterData?.title || 'unknown-chapter';
     const chapterCategory = chapterData?.category || 'unknown-category';
@@ -354,7 +362,18 @@ const VerseMediaFormInternal: React.FC<{
         </select>
       </div>
 
-      {mode === 'create' && (
+      {mode === 'create' && preSelectedVerse && (
+        <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Ayat</span>
+            <span className="text-sm font-medium text-text-primary">
+              {preSelectedVerse.chapter?.title} · Ayat {preSelectedVerse.verseNumber}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {mode === 'create' && !preSelectedVerse && (
         <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
           <p className="text-sm font-semibold text-primary">Pilih Ayat</p>
 
@@ -507,6 +526,7 @@ export const VerseMediaUploadForm: React.FC<VerseMediaFormProps> = ({
   initialData,
   hadiList,
   error,
+  preSelectedVerse,
 }) => {
   const modalTitle = mode === 'edit' ? 'Edit Audio' : 'Upload Audio Baru';
   const formKey = `${mode}-${initialData?.id ?? 'new'}`;
@@ -522,6 +542,7 @@ export const VerseMediaUploadForm: React.FC<VerseMediaFormProps> = ({
         initialData={initialData}
         hadiList={hadiList}
         error={error}
+        preSelectedVerse={preSelectedVerse}
       />
     </Modal>
   );

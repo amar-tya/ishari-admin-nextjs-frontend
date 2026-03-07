@@ -3,7 +3,8 @@
     "allow": [
       "Bash(ls \"C:\\\\Users\\\\aamar\\\\Doc Lokal\\\\git\\\\ishari\\\\ishari-admin-nextjs-frontend/src/app/\\(auth\\)\")",
       "Bash(ls \"C:\\\\Users\\\\aamar\\\\Doc Lokal\\\\git\\\\ishari\\\\ishari-admin-nextjs-frontend/src/app/\\(guest\\)\")",
-      "Bash(ls \"C:\\\\Users\\\\aamar\\\\Doc Lokal\\\\git\\\\ishari\\\\ishari-admin-nextjs-frontend/src/app/\\(public\\)\")"
+      "Bash(ls \"C:\\\\Users\\\\aamar\\\\Doc Lokal\\\\git\\\\ishari\\\\ishari-admin-nextjs-frontend/src/app/\\(public\\)\")",
+      "Bash(bun lint)"
     ]
   }
 }

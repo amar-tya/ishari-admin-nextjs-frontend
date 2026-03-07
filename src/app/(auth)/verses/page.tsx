@@ -8,6 +8,7 @@ import {
   VerseToolbar,
   VerseForm,
   VerseFilter,
+  VerseMediaManageModal,
 } from '@/presentation/components/verse';
 import { Pagination } from '@/presentation/components/books/Pagination';
 import { VerseEntity } from '@/core/entities';
@@ -36,6 +37,8 @@ export default function VersesPage() {
     undefined
   );
   const [selectedVerseIds, setSelectedVerseIds] = useState<number[]>([]);
+  const [isVerseMediaModalOpen, setIsVerseMediaModalOpen] = useState(false);
+  const [selectedVerseForMedia, setSelectedVerseForMedia] = useState<VerseEntity | undefined>(undefined);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<{
     chapterId?: number;
@@ -109,6 +112,11 @@ export default function VersesPage() {
     setFormMode('create');
     setSelectedVerse(undefined);
     setIsModalOpen(true);
+  };
+
+  const handleVerseMedia = (verse: VerseEntity) => {
+    setSelectedVerseForMedia(verse);
+    setIsVerseMediaModalOpen(true);
   };
 
   const handleEditVerse = (verse: VerseEntity) => {
@@ -236,6 +244,7 @@ export default function VersesPage() {
               verses={verseList?.data || []}
               onEdit={handleEditVerse}
               onDelete={handleDelete}
+              onMedia={handleVerseMedia}
               selectedIds={selectedVerseIds}
               onSelectionChange={handleSelectionChange}
             />
@@ -297,6 +306,15 @@ export default function VersesPage() {
         isLoading={isVerseLoading}
         variant="danger"
       />
+
+      {/* Verse Media Modal */}
+      {selectedVerseForMedia && (
+        <VerseMediaManageModal
+          verse={selectedVerseForMedia}
+          isOpen={isVerseMediaModalOpen}
+          onClose={() => setIsVerseMediaModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
